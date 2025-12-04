@@ -10,14 +10,28 @@ class CropViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         print("REQUEST DATA --->", request.data)  # DEBUG
-        serializer = self.get_serializer(data=request.data)
 
-        if not serializer.is_valid():
-            print("ERRORS --->", serializer.errors)  # REAL REASON FOR 400
-            return Response(serializer.errors, status=400)
+        crop_name = request.data.get("crop_name", "").strip()
 
-        self.perform_create(serializer)
-        return Response(serializer.data, status=201)
+        if not crop_name:
+            return Response({"crop_name": "This field is required."}, status=400)
+
+        # Check if the crop already exists
+        crop, created = Crop.objects.get_or_create(
+            crop_name__iexact=crop_name,  # case-insensitive check
+            defaults={
+                "crop_name": crop_name,
+                "description": request.data.get("description", ""),
+                "image": request.data.get("image", None),
+                "category": request.data.get("category", None),
+            }
+        )
+
+        serializer = self.get_serializer(crop)
+        if created:
+            return Response(serializer.data, status=201)  # New crop created
+        else:
+            return Response(serializer.data, status=200)  # Existing crop returned
 
 class MarketplaceViewSet(viewsets.ModelViewSet):
     queryset = Marketplace.objects.all()

@@ -19,3 +19,5 @@ class MarketplaceSerializer(serializers.ModelSerializer):
             return obj.crop.crop_name if obj.crop else None
         except Crop.DoesNotExist:
             return None
+
+    
