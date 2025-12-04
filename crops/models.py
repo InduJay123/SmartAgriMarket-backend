@@ -34,7 +34,7 @@ class Marketplace(models.Model):
     farming_method = models.CharField(max_length=255)
     region = models.CharField(max_length =255)
     district = models.CharField(max_length=255)
-    image = models.CharField(max_length=255, blank=True, null=True)
+    image = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Available')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
