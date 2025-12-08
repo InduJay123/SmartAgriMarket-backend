@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'crops'
+    'crops',
 ]
 
 MIDDLEWARE = [
@@ -82,7 +82,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'smartagrimarket',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'bankaimysql2001',
         'HOST': '127.0.0.1',
         'PORT': '3306'
     }

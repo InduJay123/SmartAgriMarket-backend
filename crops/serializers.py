@@ -15,8 +15,11 @@ class MarketplaceSerializer(serializers.ModelSerializer):
         model = Marketplace
         fields = "__all__"
 
-    def get_crop_name(self,obj):
+    def get_crop_name(self, obj):
         try:
             return obj.crop.crop_name if obj.crop else None
         except Crop.DoesNotExist:
-            return None  
+            return None
+
+    def get_image_url(self, obj):
+        return obj.image if obj.image else None  
