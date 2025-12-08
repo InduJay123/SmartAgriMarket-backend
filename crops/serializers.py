@@ -20,3 +20,12 @@ class MarketplaceSerializer(serializers.ModelSerializer):
             return obj.crop.crop_name if obj.crop else None
         except Crop.DoesNotExist:
             return None  
+    
+    def get_image_url(self, obj):
+        # Adjust this depending on your model's image field
+        try:
+            if obj.image:  # or obj.crop.image if the image is on the related crop
+                return obj.image.url  # If it's an ImageField/FileField
+            return None
+        except AttributeError:
+            return None
