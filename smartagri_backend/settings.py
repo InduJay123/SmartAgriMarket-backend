@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'crops',
     'buyer',
-    'cart'
-
+    'cart',
+    'ml_api',
 ]
 
 MIDDLEWARE = [
