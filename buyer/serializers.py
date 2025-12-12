@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Marketplace, Crop
+from .models import Marketplace, Crop, User
 
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +12,7 @@ class MarketplaceSerializer(serializers.ModelSerializer):
     crop_name = serializers.SerializerMethodField()
     crop_default_image = serializers.CharField(source="crop.image", read_only=True)
     image_url = serializers.SerializerMethodField() 
+    farmer = serializers.SerializerMethodField()
 
     class Meta:
         model = Marketplace
@@ -35,3 +36,18 @@ class MarketplaceSerializer(serializers.ModelSerializer):
                 img = img[2:-1]
             return img
         return None
+
+    def get_farmer(self, obj):
+        try:
+            user = User.objects.get(user_id=obj.farmer_id)
+            return FarmerSerializer(user).data
+        except User.DoesNotExist:
+            return None
+
+
+
+class FarmerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_id', 'name', 'email', 'phone', 'region', 'profile_image', 'created_at']
+
