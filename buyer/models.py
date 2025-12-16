@@ -45,3 +45,30 @@ class Marketplace(models.Model):
     class Meta:
         db_table = 'marketplace'
         managed = False
+
+
+
+class User(models.Model):
+    ROLE_CHOICES = [
+        ('Farmer', 'Farmer'),
+        ('Buyer', 'Buyer'),
+        ('Admin', 'Admin'),
+    ]
+
+    user_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, db_index=True)
+    password = models.CharField(max_length=255)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    phone = models.IntegerField()  # longblob
+    region = models.CharField(max_length=100, null=True, blank=True)
+    profile_image = models.CharField(max_length=255, null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'users'
+        managed = False  # because table is already created manually
+
+    def __str__(self):
+        return self.name
