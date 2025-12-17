@@ -1,7 +1,7 @@
-Django>=4.2
-djangorestframework
+# Django>=4.2
+# djangorestframework
 djangorestframework-simplejwt
-django-cors-headers
+# django-cors-headers
 psycopg2-binary
 Pillow
 celery[redis]
@@ -12,3 +12,12 @@ pytest
 pytest-django
 factory-boy
 django-filter
+
+
+asgiref==3.11.0
+Django==5.2.8
+django-cors-headers==4.9.0
+djangorestframework==3.16.1
+mysqlclient==2.2.7
+sqlparse==0.5.3
+tzdata==2025.2
