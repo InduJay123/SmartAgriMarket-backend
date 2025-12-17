@@ -65,7 +65,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default':{
     'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'samrtagrimarket',
+    'NAME': 'smartagrimarket',
     'USER':'root',
     'PASSWORD':'',
     'HOST':'127.0.0.1',
