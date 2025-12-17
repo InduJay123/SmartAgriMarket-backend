@@ -4,7 +4,7 @@ from .models import Crop, Marketplace
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crop
-        fields = ['crop_id', 'crop_name', 'description']
+        fields = ['crop_id', 'crop_name', 'description','image']
 
 class MarketplaceSerializer(serializers.ModelSerializer):   
     crop_name = serializers.SerializerMethodField()
@@ -22,10 +22,4 @@ class MarketplaceSerializer(serializers.ModelSerializer):
             return None  
     
     def get_image_url(self, obj):
-        # Adjust this depending on your model's image field
-        try:
-            if obj.image:  # or obj.crop.image if the image is on the related crop
-                return obj.image.url  # If it's an ImageField/FileField
-            return None
-        except AttributeError:
-            return None
+        return obj.image if obj.image else None

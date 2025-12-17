@@ -43,5 +43,5 @@ class Marketplace(models.Model):
         return f"{self.crop.crop_name} - ({self.status})"
 
     class Meta:
-        db_table = 'marketplace'
+        db_table = 'market'
         managed = False
