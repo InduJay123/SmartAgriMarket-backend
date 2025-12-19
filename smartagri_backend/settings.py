@@ -138,3 +138,7 @@ CORS_ALLOWED_ORIGINS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# File upload settings
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (default is 2.5MB)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (default is 2.5MB)
