@@ -45,10 +45,42 @@ def place_order(request):
     )
 
 @api_view(['GET'])
-def buyer_orders(request,buyer_id):
-    orders=Order.objects.filter(buyer_id=buyer_id).order_by('-created_at')
-    serializer=OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+def buyer_orders(request, buyer_id):
+    from django.db import connection
+
+    query = """
+        SELECT
+            o.order_id,
+            o.buyer_id,
+            o.market_id,
+            o.quantity,
+            o.price_at_order,
+            o.total_amount,
+            o.status,
+            o.full_name,
+            o.phone,
+            o.address,
+            o.city,
+            o.created_at,
+
+            m.image AS product_image,
+            u.name AS farmer_name,
+            c.crop_name AS product_name
+        FROM orders o
+        JOIN market m ON o.market_id = m.market_id
+        JOIN users u ON m.farmer_id = u.user_id
+        JOIN crops c ON m.crop_id = c.crop_id
+        WHERE o.buyer_id = %s
+        ORDER BY o.created_at DESC
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, [buyer_id])
+        columns = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+
+    data = [dict(zip(columns, row)) for row in rows]
+    return Response(data)
 
 @api_view(['GET'])
 def farmer_orders(request, farmer_id):
