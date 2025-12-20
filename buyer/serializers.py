@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Marketplace, Crop, User
+from .models import Marketplace, Crop, User, Favourite
 
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,3 +51,9 @@ class FarmerSerializer(serializers.ModelSerializer):
         model = User
         fields = ['user_id', 'name', 'email', 'phone', 'region', 'profile_image', 'created_at']
 
+class FavouriteSerializer(serializers.ModelSerializer):
+    market = MarketplaceSerializer(read_only=True)  # nest marketplace data
+
+    class Meta:
+        model = Favourite
+        fields = ['id', 'user_id', 'market']

@@ -72,3 +72,14 @@ class User(models.Model):
 
     def __str__(self):
         return self.name
+
+class Favourite(models.Model):
+    user_id = models.IntegerField(default=1)  # hardcode user_id=1 for now
+    market = models.ForeignKey('Marketplace', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'favourites'
+        unique_together = ('user_id', 'market')
+
+    def __str__(self):
+        return f"User {self.user_id} favourite: {self.market.crop.crop_name}"
