@@ -64,7 +64,7 @@ def buyer_orders(request, buyer_id):
             o.created_at,
 
             m.image AS product_image,
-            u.name AS farmer_name,
+            u.fullname AS farmer_name,
             c.crop_name AS product_name
         FROM orders o
         JOIN market m ON o.market_id = m.market_id
