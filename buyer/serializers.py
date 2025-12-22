@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Marketplace, Crop, User, Favourite
+from .models import Marketplace, Crop, User, Favourite, BuyerDetails
 
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,7 +49,8 @@ class MarketplaceSerializer(serializers.ModelSerializer):
 class FarmerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_id', 'name', 'email', 'phone', 'region', 'profile_image', 'created_at']
+        fields = ['user_id', 'fullname', 'email', 'phone', 'region', 'created_at']
+
 
 class FavouriteSerializer(serializers.ModelSerializer):
     market = MarketplaceSerializer(read_only=True)  # nest marketplace data
@@ -57,3 +58,31 @@ class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
         fields = ['id', 'user_id', 'market']
+
+
+class BuyerProfileSerializer(serializers.ModelSerializer):
+    user_id = serializers.SerializerMethodField()
+    fullname = serializers.CharField(source="user.fullname", read_only=True)
+    username = serializers.CharField(source="user.username", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    phone = serializers.CharField(source="user.phone", read_only=True)
+
+    class Meta:
+        model = BuyerDetails
+        fields = [
+            "user_id",
+            "fullname",
+            "username",
+            "email",
+            "phone",
+            "company_name",
+            "company_email",
+            "company_phone",
+            "address",
+            "city",
+            "postal_code",
+            "profile_image"
+        ]
+        
+    def get_user_id(self, obj):
+        return obj.user.user_id
