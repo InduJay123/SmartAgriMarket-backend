@@ -1,5 +1,7 @@
 from rest_framework import viewsets, permissions, filters
-from .models import Product, Listing
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import Product, Listing, Price
 from .serializers import ProductSerializer, ListingSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -22,3 +24,23 @@ class ListingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(seller=self.request.user)
+
+@api_view(['GET'])
+def tomato_price_chart(request):
+    try:
+        tomato = Product.objects.get(name__iexact='tomato')
+        prices = (
+            Price.objects
+            .filter(product=tomato)
+            .order_by('-date')[:6]
+        )
+
+        prices = reversed(prices)  # correct order
+
+        return Response({
+            "labels": [p.date.strftime('%b') for p in prices],
+            "prices": [p.price for p in prices],
+        })
+
+    except Product.DoesNotExist:
+        return Response({"error": "Tomato product not found"}, status=404)

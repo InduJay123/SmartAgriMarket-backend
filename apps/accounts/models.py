@@ -17,13 +17,18 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
+    ROLE_CHOICES = (
+        ('ADMIN', 'Admin'),
+        ('FARMER', 'Farmer'),
+        ('BUYER', 'Buyer'),
+    )
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_verified = models.BooleanField(default=False)
-    role = models.CharField(max_length=30, default='buyer')
+    role = models.CharField(max_length=30, choices=ROLE_CHOICES)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

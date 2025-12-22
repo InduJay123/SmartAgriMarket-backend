@@ -1,23 +1,37 @@
-# Django>=4.2
-# djangorestframework
-djangorestframework-simplejwt
-# django-cors-headers
-psycopg2-binary
-Pillow
-celery[redis]
-redis
-drf-yasg
-python-dotenv
-pytest
-pytest-django
-factory-boy
-django-filter
+# # Django>=4.2
+# # djangorestframework
+# djangorestframework-simplejwt
+# # django-cors-headers
+# psycopg2-binary
+# Pillow
+# celery[redis]
+# redis
+# drf-yasg
+# python-dotenv
+# pytest
+# pytest-django
+# factory-boy
+# django-filter
 
 
-asgiref==3.11.0
+# asgiref==3.11.0
+# Django==5.2.8
+# django-cors-headers==4.9.0
+# djangorestframework==3.16.1
+# mysqlclient==2.2.7
+# sqlparse==0.5.3
+# tzdata==2025.2
+
 Django==5.2.8
-django-cors-headers==4.9.0
 djangorestframework==3.16.1
-mysqlclient==2.2.7
-sqlparse==0.5.3
-tzdata==2025.2
+python-dotenv==1.2.1
+PyMySQL==1.1.1
+drf-yasg==1.21.11
+django-filter==25.1
+django-cors-headers==4.7.0
+djangorestframework-simplejwt==5.5.1
+PyYAML==6.0.3
+uritemplate==4.2.0
+inflection==0.5.1
+pytz==2025.2
+Pillow==10.3.0
