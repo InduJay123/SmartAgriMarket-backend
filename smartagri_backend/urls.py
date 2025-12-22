@@ -22,5 +22,6 @@ urlpatterns = [
     #path('api/', include('crops.urls')),
     path('api/', include('buyer.urls')),
     path('api/order/', include('order.urls')),
-    path('api/documents/', include('documents.urls'))
+    path('api/documents/', include('documents.urls')),
+    path('api/reviews/', include('reviews.urls'))
 ]

@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     #'crops',
     'buyer',
     'order',
-    'documents'
+    'documents',
+    'reviews'
 ]
 
 MIDDLEWARE = [
