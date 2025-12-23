@@ -8,7 +8,7 @@ from buyer.models import Marketplace
 class Review(models.Model):
     product = models.ForeignKey(Marketplace, on_delete=models.CASCADE, related_name="reviews")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    rating = models.IntegerField(default=5)  # 1-5 stars
+    rating = models.IntegerField(default=0,null=True, blank=True) 
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
