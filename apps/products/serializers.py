@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Product, Listing
 from apps.accounts.serializers import UserSerializer
+from .models import Crop
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,3 +22,22 @@ class ListingSerializer(serializers.ModelSerializer):
         user = request.user
         validated_data['seller'] = user
         return super().create(validated_data)
+
+class CropSerializer(serializers.ModelSerializer):
+    avg_price_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Crop
+        fields = [
+            'id',
+            'name',
+            'category',
+            'season',
+            'avg_price',
+            'unit',
+            'avg_price_display',
+            'is_active'
+        ]
+
+    def get_avg_price_display(self, obj):
+        return f"Rs: {obj.avg_price}/{obj.unit}"

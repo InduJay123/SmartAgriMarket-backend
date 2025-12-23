@@ -5,6 +5,21 @@ from .models import Product, Listing, Price
 from .serializers import ProductSerializer, ListingSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
+from rest_framework.generics import ListCreateAPIView
+
+from rest_framework.filters import SearchFilter
+from .models import Crop
+from .serializers import CropSerializer
+from apps.adminpanel.permissions import IsAdminUserOnly
+
+from rest_framework.generics import RetrieveUpdateAPIView
+
+from rest_framework.views import APIView
+
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -44,3 +59,32 @@ def tomato_price_chart(request):
 
     except Product.DoesNotExist:
         return Response({"error": "Tomato product not found"}, status=404)
+
+
+class AdminCropListCreateView(ListCreateAPIView):
+    permission_classes = [IsAdminUserOnly]
+    serializer_class = CropSerializer
+    queryset = Crop.objects.filter(is_active=True)
+
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['name']
+    filterset_fields = ['category', 'season']
+    ordering_fields = ['avg_price', 'created_at']
+
+class AdminCropUpdateView(RetrieveUpdateAPIView):
+    permission_classes = [IsAdminUserOnly]
+    serializer_class = CropSerializer
+    queryset = Crop.objects.all()
+
+class AdminCropDeleteView(APIView):
+    permission_classes = [IsAdminUserOnly]
+
+    def delete(self, request, crop_id):
+        crop = get_object_or_404(Crop, id=crop_id)
+        crop.is_active = False
+        crop.save()
+
+        return Response(
+            {"message": "Crop deleted successfully"},
+            status=status.HTTP_200_OK
+        )
