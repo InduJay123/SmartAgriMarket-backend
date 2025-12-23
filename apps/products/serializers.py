@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Listing
+from .models import PriceUpload, Product, Listing
 from apps.accounts.serializers import UserSerializer
 from .models import Crop
 
@@ -41,3 +41,13 @@ class CropSerializer(serializers.ModelSerializer):
 
     def get_avg_price_display(self, obj):
         return f"Rs: {obj.avg_price}/{obj.unit}"
+
+class PriceUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PriceUpload
+        fields = [
+            'id',
+            'original_name',
+            'status',
+            'uploaded_at',
+        ]

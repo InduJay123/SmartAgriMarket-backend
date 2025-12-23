@@ -62,3 +62,40 @@ class Crop(models.Model):
 
     def __str__(self):
         return self.name
+
+#price upload model
+class PriceUpload(models.Model):
+    STATUS_CHOICES = (
+        ('processing', 'Processing'),
+        ('processed', 'Processed'),
+        ('failed', 'Failed'),
+    )
+
+    file = models.FileField(upload_to='price_uploads/')
+    original_name = models.CharField(max_length=255)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='processing')
+    uploaded_by = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    error_message = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.original_name
+
+class CropPrice(models.Model):
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    unit = models.CharField(max_length=20)
+    market = models.CharField(max_length=100)
+    date = models.DateField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('crop', 'market', 'date')
+
+    def __str__(self):
+        return f"{self.crop.name} - {self.market} - {self.date}"

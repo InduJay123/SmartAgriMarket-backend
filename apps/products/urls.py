@@ -6,6 +6,8 @@ from .views import (
     AdminCropListCreateView,
     AdminCropUpdateView,
     AdminCropDeleteView,
+    AdminUploadPriceView,
+    AdminRecentUploadsView,
 )
 
 router = DefaultRouter()
@@ -18,4 +20,6 @@ urlpatterns = [
     path('crops/', AdminCropListCreateView.as_view()),
     path('crops/<int:pk>/', AdminCropUpdateView.as_view()),
     path('crops/<int:crop_id>/delete/', AdminCropDeleteView.as_view()),
+    path('prices/upload/', AdminUploadPriceView.as_view()),
+    path('prices/uploads/', AdminRecentUploadsView.as_view()),
 ]

@@ -20,6 +20,13 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 
+from rest_framework.parsers import MultiPartParser
+from .models import PriceUpload
+from .serializers import PriceUploadSerializer
+from .price_importer import process_price_file
+from rest_framework.generics import ListAPIView
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -88,3 +95,38 @@ class AdminCropDeleteView(APIView):
             {"message": "Crop deleted successfully"},
             status=status.HTTP_200_OK
         )
+
+class AdminUploadPriceView(APIView):
+    permission_classes = [IsAdminUserOnly]
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+
+        if not file:
+            return Response({"error": "No file uploaded"}, status=400)
+
+        if file.size > 10 * 1024 * 1024:
+            return Response({"error": "File too large (max 10MB)"}, status=400)
+
+        upload = PriceUpload.objects.create(
+            file=file,
+            original_name=file.name,
+            uploaded_by=request.user
+        )
+
+        process_price_file(upload)  # later → Celery
+
+        return Response(
+            {"message": "File uploaded", "upload_id": upload.id},
+            status=status.HTTP_201_CREATED
+        )
+
+
+
+class AdminRecentUploadsView(ListAPIView):
+    permission_classes = [IsAdminUserOnly]
+    serializer_class = PriceUploadSerializer
+
+    def get_queryset(self):
+        return PriceUpload.objects.order_by('-uploaded_at')[:10]
