@@ -43,7 +43,7 @@ class Marketplace(models.Model):
         return f"{self.crop.crop_name} - ({self.status})"
 
     class Meta:
-        db_table = 'marketplace'
+        db_table = 'market'
         managed = False
 
 
@@ -56,13 +56,13 @@ class User(models.Model):
     ]
 
     user_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
+    fullname = models.CharField(max_length=100)
+    username = models.CharField(max_length=255)
     email = models.CharField(max_length=100, db_index=True)
     password = models.CharField(max_length=255)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     phone = models.IntegerField()  # longblob
     region = models.CharField(max_length=100, null=True, blank=True)
-    profile_image = models.CharField(max_length=255, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(null=True, blank=True)
 
@@ -71,4 +71,33 @@ class User(models.Model):
         managed = False  # because table is already created manually
 
     def __str__(self):
-        return self.name
+        return self.fullname
+
+class BuyerDetails(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="buyer_details")
+    company_name = models.CharField(max_length=150, null=True, blank=True)
+    company_email = models.CharField(max_length=150, null=True, blank=True)
+    company_phone = models.CharField(max_length=20, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    postal_code = models.CharField(max_length=20, null=True, blank=True)
+    profile_image = models.CharField(max_length=255, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'buyer_details'
+        managed = False  # Change to True if you want Django to create this table
+
+    def __str__(self):
+        return f"{self.user.username} Details"
+
+class Favourite(models.Model):
+    user_id = models.IntegerField(default=1)  # hardcode user_id=1 for now
+    market = models.ForeignKey('Marketplace', on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table = 'favourites'
+        unique_together = ('user_id', 'market')
+
+    def __str__(self):
+        return f"User {self.user_id} favourite: {self.market.crop.crop_name}"
