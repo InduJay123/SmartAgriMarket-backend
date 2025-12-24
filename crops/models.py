@@ -32,6 +32,8 @@ class Marketplace(models.Model):
     predicted_date = models.DateField()
     quantity = models.IntegerField()
     farming_method = models.CharField(max_length=255)
+    farming_season = models.CharField(max_length=255)
+    additional_details = models.CharField(max_length=255)
     region = models.CharField(max_length =255)
     district = models.CharField(max_length=255)
     image = models.TextField(blank=True, null=True)
@@ -43,5 +45,5 @@ class Marketplace(models.Model):
         return f"{self.crop.crop_name} - ({self.status})"
 
     class Meta:
-        db_table = 'marketplace'
+        db_table = 'market'
         managed = False

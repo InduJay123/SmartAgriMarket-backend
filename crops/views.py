@@ -40,6 +40,10 @@ class MarketplaceViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Marketplace.objects.select_related('crop').filter(farmer_id = 1)
     
+    def create(self, request, *args, **kwargs):
+        print("CREATE REQUEST DATA:", request.data)
+        return super().create(request, *args, **kwargs)
+        
     def update(self, request, *args, **kwargs):
         print("UPDATE REQUEST DATA:", request.data)  # debug
         return super().update(request, *args, **kwargs)
