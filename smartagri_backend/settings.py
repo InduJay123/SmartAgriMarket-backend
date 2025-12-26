@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'order',
     'documents',
     'reviews'
+    'crops',
+    'user'
 ]
 
 MIDDLEWARE = [
