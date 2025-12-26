@@ -10,7 +10,11 @@ class MarketplaceSerializer(serializers.ModelSerializer):
     crop_name = serializers.SerializerMethodField()
     crop_default_image = serializers.CharField(source="crop.image", read_only=True)
     image_url = serializers.SerializerMethodField() 
-
+    additional_details = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        allow_null=True
+    )
     class Meta:
         model = Marketplace
         fields = "__all__"
