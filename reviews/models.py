@@ -1,7 +1,4 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from buyer.models import User
 from buyer.models import Marketplace
 
