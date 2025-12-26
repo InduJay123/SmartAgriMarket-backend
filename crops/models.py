@@ -33,7 +33,7 @@ class Marketplace(models.Model):
     quantity = models.IntegerField()
     farming_method = models.CharField(max_length=255)
     farming_season = models.CharField(max_length=255)
-    additional_details = models.CharField(max_length=255)
+    additional_details = models.CharField(max_length=255,blank=True,null=True)
     region = models.CharField(max_length =255)
     district = models.CharField(max_length=255)
     image = models.TextField(blank=True, null=True)
