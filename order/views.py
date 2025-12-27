@@ -87,9 +87,25 @@ def farmer_orders(request, farmer_id):
     from django.db import connection
 
     query = """
-        SELECT o.*
+        SELECT
+            o.order_id,
+            o.buyer_id,
+            o.market_id,
+            o.quantity,
+            o.price_at_order,
+            o.total_amount,
+            o.status,
+            o.full_name,
+            o.phone,
+            o.address,
+            o.city,
+            o.created_at,
+
+            c.crop_name AS product_name,
+            m.image AS product_image
         FROM orders o
-        JOIN marketplace m ON o.market_id = m.market_id
+        JOIN market m ON o.market_id = m.market_id
+        JOIN crops c ON m.crop_id = c.crop_id
         WHERE m.farmer_id = %s
         ORDER BY o.created_at DESC
     """
@@ -100,4 +116,4 @@ def farmer_orders(request, farmer_id):
         rows = cursor.fetchall()
 
     data = [dict(zip(columns, row)) for row in rows]
-    return Response(data)
+    return Response(data, status=status.HTTP_200_OK)
