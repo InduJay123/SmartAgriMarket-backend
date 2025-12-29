@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = "users.User"
+
 
 # Application definition
 
@@ -44,7 +46,7 @@ INSTALLED_APPS = [
     'order',
     'documents',
     'reviews',
-    'user'
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -140,3 +142,19 @@ CORS_ALLOWED_ORIGINS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+# Optional: configure token lifetime
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'user_id', 
+    'USER_ID_CLAIM': 'user_id',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+}

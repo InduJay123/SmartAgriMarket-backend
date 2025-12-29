@@ -2,14 +2,31 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Users,FarmerDetails
-from .serializers import UserProfileSerializer, FarmerDetailsSerializer
+from .models import User,FarmerDetails
+from .serializers import UserProfileSerializer, FarmerDetailsSerializer, UserLoginSerializer, UserSignupSerializer
 from django.utils import timezone
+
+@api_view(["POST"])
+def signup(request):
+    serializer = UserSignupSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def login(request):
+    serializer = UserLoginSerializer(data=request.data)
+    if serializer.is_valid():
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT'])
 def farmer_profile(request, user_id):
     try:
-        user = Users.objects.get(user_id=user_id)
+        user = User.objects.get(user_id=user_id)
     except:
         return Response({"error": "Farmer not found"}, 
             status=status.HTTP_404_NOT_FOUND
@@ -49,7 +66,7 @@ def farmer_profile(request, user_id):
 @api_view(['DELETE'])
 def farmer_profile_delete_image(request, user_id):
     try:
-        farmer = FarmerDetails.objects.get(user_id=user_id)
+        farmer = FarmerDetails.objects.get(user__user=user_id)
     except FarmerDetails.DoesNotExist:
         return Response({"error": "Farmer not found"}, status=status.HTTP_404_NOT_FOUND)
 
