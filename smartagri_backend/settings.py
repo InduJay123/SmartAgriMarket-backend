@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'documents',
     'reviews',
     'user'
+    'accounts',
+    #'crops'
 ]
 
 MIDDLEWARE = [

@@ -4,4 +4,4 @@ __pycache__/
 db.mysql
 .env
 *.log
-venv/
+venv
