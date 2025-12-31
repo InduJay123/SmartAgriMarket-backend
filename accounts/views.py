@@ -5,9 +5,13 @@ from django.contrib.auth import authenticate
 from rest_framework import status
 from .serializers import SignupSerializer
 from django.contrib.auth import authenticate
+from rest_framework.permissions import IsAuthenticated
+from .models import FarmerDetails
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 
 class SignupAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
@@ -19,6 +23,7 @@ class SignupAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -49,28 +54,6 @@ class LoginAPI(APIView):
         if role == "Buyer" and not hasattr(user, 'buyerdetails'):
             return Response({"error": "User is not a buyer"}, status=status.HTTP_400_BAD_REQUEST)
 
-        profile_data = {}
-        if role == "Farmer":
-            if not hasattr(user, 'farmerdetails'):
-                return Response({"error": "User is not a farmer"}, status=400)
-            profile = user.farmerdetails
-            profile_data = {
-                "fullname": profile.fullname,
-                "farm_name": profile.farm_name,
-                "contact_number": profile.contact_number,
-            }
-
-        elif role == "Buyer":
-            if not hasattr(user, 'buyerdetails'):
-                return Response({"error": "User is not a buyer"}, status=400)
-            profile = user.buyerdetails
-            profile_data = {
-                "fullname": profile.fullname,
-                "contact_number": profile.contact_number,
-                "city": profile.city,
-                "address": profile.address,
-            }
-
         refresh = RefreshToken.for_user(user)
         return Response({
             "refresh": str(refresh),
@@ -82,3 +65,71 @@ class LoginAPI(APIView):
                 "role": role
             }
         })
+
+class FarmerProfileAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            farmer = user.farmerdetails
+            data = {
+                "id": user.id,
+                "first_name":  user.username,
+                "email": user.email,
+                "phone": farmer.contact_number,
+                "farmer_details": {
+                    "fullname": farmer.fullname,
+                    "farm_name": farmer.farm_name,
+                    "address": getattr(farmer, "address", ""),
+                    "region": farmer.region,
+                    "about": getattr(farmer, "about", ""),
+                    "profile_image": getattr(farmer, "profile_image", ""),
+                    "price_alert": getattr(farmer, "price_alert", False),
+                    "buyer_msg": getattr(farmer, "buyer_msg", False),
+                    "harvest_rem": getattr(farmer, "harvest_rem", False),
+                    "market_update": getattr(farmer, "market_update", False),
+                }
+            }
+            
+            return Response(data, status=status.HTTP_200_OK)
+        except FarmerDetails.DoesNotExist:
+            return Response({"error": "Farmer profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request):
+        user = request.user
+        try:
+            farmer = user.farmerdetails
+            data = request.data
+
+            farmer.fullname = data.get("fullname", farmer.fullname)
+            farmer.contact_number = data.get("phone", farmer.contact_number)
+            farmer.farm_name = data.get("farm_name", farmer.farm_name)
+            farmer.address = data.get("address", getattr(farmer, "address", ""))
+            farmer.region = data.get("region", farmer.region)
+            farmer.about = data.get("about", getattr(farmer, "about", ""))
+            farmer.profile_image = data.get("profile_image", getattr(farmer, "profile_image", ""))
+            farmer.price_alert = data.get("price_alert", getattr(farmer, "price_alert", False))
+            farmer.buyer_msg = data.get("buyer_msg", getattr(farmer, "buyer_msg", False))
+            farmer.harvest_rem = data.get("harvest_rem", getattr(farmer, "harvest_rem", False))
+            farmer.market_update = data.get("market_update", getattr(farmer, "market_update", False))
+
+            farmer.save()
+            return Response({"message": "Profile updated successfully"}, status=status.HTTP_200_OK)
+
+        except FarmerDetails.DoesNotExist:
+            return Response({"error": "Farmer profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class DeleteProfileImageAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            farmer = request.user.farmerdetails
+            farmer.profile_image = ""
+            farmer.save()
+            return Response({"message": "Profile image deleted"})
+        except:
+            return Response({"error": "Farmer profile not found"}, status=404)
+
+                

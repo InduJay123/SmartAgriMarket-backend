@@ -8,7 +8,7 @@ class SignupSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     role = serializers.ChoiceField(choices=["Farmer", "Buyer"])
-    fullname = serializers.CharField(write_only=True, required=False)
+    fullname = serializers.CharField(write_only=True, required=True)
     contact_number = serializers.CharField(write_only=True, required=False)
     farm_name = serializers.CharField(write_only=True, required=False)
 

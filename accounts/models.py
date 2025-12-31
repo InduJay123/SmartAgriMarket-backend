@@ -3,9 +3,20 @@ from django.contrib.auth.models import User
 
 class FarmerDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
     fullname = models.CharField(max_length=150,null=True, blank=True)
     farm_name = models.CharField(max_length=100, blank=True, null=True)
     contact_number = models.CharField(max_length=15, blank=True, null=True)
+    region = models.CharField(max_length=100, blank=True)
+
+    address = models.TextField(blank=True, null=True)
+    about = models.TextField(blank=True, null=True)
+    profile_image = models.URLField(blank=True, null=True)
+
+    price_alert = models.BooleanField(default=False)
+    buyer_msg = models.BooleanField(default=False)
+    harvest_rem = models.BooleanField(default=False)
+    market_update = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
