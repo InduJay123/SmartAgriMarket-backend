@@ -3,6 +3,7 @@ from .models import Crop, Marketplace
 from .serializers import CropSerializer, MarketplaceSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all()
@@ -36,10 +37,17 @@ class CropViewSet(viewsets.ModelViewSet):
 class MarketplaceViewSet(viewsets.ModelViewSet):
     queryset = Marketplace.objects.all()
     serializer_class = MarketplaceSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Marketplace.objects.select_related('crop').filter(farmer_id = 1)
-    
+        user = self.request.user
+        return Marketplace.objects.select_related("crop").filter(
+            farmer_id=user.id
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(farmer_id=self.request.user.id)
+
     def create(self, request, *args, **kwargs):
         print("CREATE REQUEST DATA:", request.data)
         return super().create(request, *args, **kwargs)

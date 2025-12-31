@@ -6,7 +6,7 @@ from rest_framework import status
 from .serializers import SignupSerializer
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
-from .models import FarmerDetails
+from .models import FarmerDetails, BuyerDetails
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
 
@@ -132,4 +132,69 @@ class DeleteProfileImageAPI(APIView):
         except:
             return Response({"error": "Farmer profile not found"}, status=404)
 
-                
+class BuyerProfileAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            buyer = user.buyerdetails
+            data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "phone": buyer.contact_number,
+                "buyer_details": {
+                    "fullname": buyer.fullname,
+                    "market_name": buyer.market_name,
+                    "company_email": buyer.company_email,
+                    "company_phone": buyer.company_phone,
+                    "profile_image": getattr(buyer, "profile_image", ""),
+                    "street_address": getattr(buyer, "street_address", ""),
+                    "city": getattr(buyer, "city", ""),
+                }
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except BuyerDetails.DoesNotExist:
+            return Response({"error": "Buyer profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request):
+        user = request.user
+        try:
+            buyer = user.buyerdetails
+            data = request.data
+
+            buyer.fullname = data.get("fullname", buyer.fullname)
+            buyer.contact_number = data.get("phone", buyer.contact_number)
+            buyer.username = data.get("username", buyer.username)
+            buyer.email = data.get("email", buyer.email)
+
+            buyer.company_name = data.get("market_name", buyer.market_name)
+            buyer.company_email = data.get("company_email", buyer.company_email)
+            buyer.company_phone = data.get("company_phone", buyer.company_phone)
+
+            buyer.street_address = data.get("street_address", getattr(buyer, "street_address", ""))
+            buyer.city = data.get("city", getattr(buyer, "city", ""))
+            buyer.profile_image = data.get("profile_image", getattr(buyer, "profile_image", ""))
+            
+            buyer.save()
+            return Response({"message": "Buyer profile updated successfully"}, status=status.HTTP_200_OK)
+
+        except BuyerDetails.DoesNotExist:
+            return Response({"error": "Buyer profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DeleteBuyerProfileImageAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            buyer = request.user.buyerdetails
+            if hasattr(buyer, "profile_image"):
+                buyer.profile_image = ""
+                buyer.save()
+                return Response({"message": "Buyer profile image deleted"})
+            else:
+                return Response({"error": "No profile image found"}, status=404)
+        except BuyerDetails.DoesNotExist:
+            return Response({"error": "Buyer profile not found"}, status=404)

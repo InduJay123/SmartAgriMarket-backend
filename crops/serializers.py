@@ -9,21 +9,14 @@ class CropSerializer(serializers.ModelSerializer):
 class MarketplaceSerializer(serializers.ModelSerializer):   
     crop_name = serializers.SerializerMethodField()
     crop_default_image = serializers.CharField(source="crop.image", read_only=True)
-    image_url = serializers.SerializerMethodField() 
-    additional_details = serializers.CharField(
-        required=False,
-        allow_blank=True,
-        allow_null=True
-    )
+    
     class Meta:
         model = Marketplace
         fields = "__all__"
+        read_only_fields = ['farmer_id'] 
 
     def get_crop_name(self,obj):
         try:
             return obj.crop.crop_name if obj.crop else None
         except Crop.DoesNotExist:
             return None  
-    
-    def get_image_url(self, obj):
-        return obj.image if obj.image else None
