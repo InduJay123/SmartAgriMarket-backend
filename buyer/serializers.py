@@ -25,17 +25,24 @@ class MarketplaceSerializer(serializers.ModelSerializer):
             return None
 
     def get_image_url(self, obj):
-        """
-        Return farmer's image if available, otherwise crop's default image.
-        Clean up byte string representation if necessary.
-        """
-        img = obj.image or obj.crop.image
-        if img:
-            # Remove b'...' wrapper if present
-            if isinstance(img, str) and img.startswith("b'") and img.endswith("'"):
-                img = img[2:-1]
-            return img
-        return None
+        img = obj.image or (obj.crop.image if obj.crop else None)
+
+        if img is None:
+            return None
+
+        # 🔥 FIX: handle bytes correctly
+        if isinstance(img, bytes):
+            try:
+                img = img.decode("utf-8")
+            except UnicodeDecodeError:
+                return None  # or str(img)
+
+        # Handle string like "b'...'"
+        if isinstance(img, str) and img.startswith("b'") and img.endswith("'"):
+            img = img[2:-1]
+
+        return img
+
 
     def get_farmer(self, obj):
         try:
