@@ -146,7 +146,7 @@ class BuyerProfileAPI(APIView):
                 "phone": buyer.contact_number,
                 "buyer_details": {
                     "fullname": buyer.fullname,
-                    "market_name": buyer.market_name,
+                    "company_name": buyer.company_name,
                     "company_email": buyer.company_email,
                     "company_phone": buyer.company_phone,
                     "profile_image": getattr(buyer, "profile_image", ""),
@@ -169,7 +169,7 @@ class BuyerProfileAPI(APIView):
             buyer.username = data.get("username", buyer.username)
             buyer.email = data.get("email", buyer.email)
 
-            buyer.company_name = data.get("market_name", buyer.market_name)
+            buyer.company_name = data.get("market_name", buyer.company_name)
             buyer.company_email = data.get("company_email", buyer.company_email)
             buyer.company_phone = data.get("company_phone", buyer.company_phone)
 
