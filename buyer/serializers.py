@@ -30,7 +30,6 @@ class MarketplaceSerializer(serializers.ModelSerializer):
         if img is None:
             return None
 
-        # 🔥 FIX: handle bytes correctly
         if isinstance(img, bytes):
             try:
                 img = img.decode("utf-8")
