@@ -44,6 +44,27 @@ class TestPricePredictor(unittest.TestCase):
         self.assertEqual(info['model_name'], 'Price Predictor')
         self.assertFalse(info['is_trained'])
 
+        def test_train_and_report_accuracy(self):
+            """Train the price predictor and print accuracy metrics."""
+            try:
+                metrics = self.predictor.train()
+                print("\n--- Price Predictor Accuracy Metrics ---")
+                if 'test_r2' in metrics:
+                    print(f"Test R²: {metrics['test_r2'] * 100:.2f}%")
+                if 'test_mae' in metrics:
+                    print(f"Test MAE: {metrics['test_mae']:.2f}")
+                if 'test_rmse' in metrics:
+                    print(f"Test RMSE: {metrics['test_rmse']:.2f}")
+                # Also print training metrics for reference
+                if 'train_r2' in metrics:
+                    print(f"Train R²: {metrics['train_r2'] * 100:.2f}%")
+                if 'train_mae' in metrics:
+                    print(f"Train MAE: {metrics['train_mae']:.2f}")
+                if 'train_rmse' in metrics:
+                    print(f"Train RMSE: {metrics['train_rmse']:.2f}")
+            except Exception as e:
+                print(f"Error during training or accuracy reporting: {e}")
+
 
 class TestDemandPredictor(unittest.TestCase):
     """Test cases for DemandPredictor."""
