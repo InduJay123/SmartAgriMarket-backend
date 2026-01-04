@@ -158,7 +158,7 @@ class BuyerProfileAPI(APIView):
         except BuyerDetails.DoesNotExist:
             return Response({"error": "Buyer profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request):
+    def patch(self, request):
         user = request.user
         try:
             buyer = user.buyerdetails
@@ -178,7 +178,21 @@ class BuyerProfileAPI(APIView):
             buyer.profile_image = data.get("profile_image", getattr(buyer, "profile_image", ""))
             
             buyer.save()
-            return Response({"message": "Buyer profile updated successfully"}, status=status.HTTP_200_OK)
+            return Response({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "phone": buyer.contact_number,
+                "buyer_details": {
+                    "fullname": buyer.fullname,
+                    "company_name": buyer.company_name,
+                    "company_email": buyer.company_email,
+                    "company_phone": buyer.company_phone,
+                    "profile_image": buyer.profile_image,
+                    "street_address": buyer.street_address,
+                    "city": buyer.city,
+                }
+            })
 
         except BuyerDetails.DoesNotExist:
             return Response({"error": "Buyer profile not found"}, status=status.HTTP_404_NOT_FOUND)

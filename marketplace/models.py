@@ -30,6 +30,7 @@ class Marketplace(models.Model):
     unit = models.CharField(max_length=20)
     predicted_date = models.DateField()
     quantity = models.IntegerField()
+    additional_details = models.CharField(max_length=255,blank=True, null=True)
     farming_method = models.CharField(max_length=100, default='Unknown')
     farming_season = models.CharField(max_length=100)
     region = models.CharField(max_length=255)
