@@ -1,6 +1,6 @@
 from django.db import models
-from buyer.models import User
-from buyer.models import Marketplace
+from django.contrib.auth.models import User
+from marketplace.models import Marketplace
 
 class Review(models.Model):
     product = models.ForeignKey(Marketplace, on_delete=models.CASCADE, related_name="reviews")
@@ -10,9 +10,8 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "product_reviews"
+        db_table = "reviews"
         ordering = ["-created_at"]
-        managed = False
 
     def __str__(self):
         return f"{self.user.fullname} - {self.product.market_id} ({self.rating}⭐)"

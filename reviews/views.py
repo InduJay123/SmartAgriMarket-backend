@@ -14,9 +14,15 @@ def get_reviews(request, product_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_review(request):
+    if not hasattr(request.user, "buyerdetails"):
+        return Response(
+            {"error": "Only buyers can add reviews"},
+            status=403
+        )
+
     serializer = ReviewSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        serializer.save(user=request.user)
         return Response(serializer.data, status=200)
     print(serializer.errors)
     return Response(serializer.errors, status=400)
