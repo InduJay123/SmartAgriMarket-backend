@@ -9,6 +9,11 @@ from rest_framework.permissions import IsAuthenticated
 from .models import FarmerDetails, BuyerDetails
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import AllowAny
+import uuid
+from django.core.mail import send_mail
+from django.utils.timezone import now
+from django.contrib.auth.hashers import make_password
+from datetime import timedelta
 
 class SignupAPI(APIView):
     permission_classes = [AllowAny]
@@ -212,3 +217,65 @@ class DeleteBuyerProfileImageAPI(APIView):
                 return Response({"error": "No profile image found"}, status=404)
         except BuyerDetails.DoesNotExist:
             return Response({"error": "Buyer profile not found"}, status=404)
+
+class ForgotPasswordAPIView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get("email")
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error": "Email not found"}, status=404)
+
+        token = uuid.uuid4().hex
+
+        if hasattr(user, "farmerdetails"):
+            profile = user.farmerdetails
+        elif hasattr(user, "buyerdetails"):
+            profile = user.buyerdetails
+        else:
+            return Response({"error": "User profile not found"}, status=400)
+
+        profile.reset_token = token
+        profile.token_created_at = now()
+        profile.save()
+
+        reset_link = f"http://localhost:5173/reset-password/{token}"
+
+        send_mail(
+            "Password Reset",
+            f"Click here to reset your password: {reset_link}",
+            "noreply@yourapp.com",
+            [email],
+        )
+
+        return Response({"message": "Reset link sent"})
+
+class ResetPasswordAPIView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        token = request.data.get("token")
+        password = request.data.get("password")
+
+        profile = (
+            FarmerDetails.objects.filter(reset_token=token).first()
+            or BuyerDetails.objects.filter(reset_token=token).first()
+        )
+
+        if not profile:
+            return Response({"error": "Invalid token"}, status=400)
+
+        #token expiry (15 minutes)
+        if now() - profile.token_created_at > timedelta(minutes=15):
+            return Response({"error": "Token expired"}, status=400)
+
+        user = profile.user
+        user.password = make_password(password)
+        user.save()
+
+        profile.reset_token = None
+        profile.token_created_at = None
+        profile.save()
+
+        return Response({"message": "Password reset successful"})

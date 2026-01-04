@@ -18,6 +18,9 @@ class FarmerDetails(models.Model):
     harvest_rem = models.BooleanField(default=False)
     market_update = models.BooleanField(default=False)
 
+    reset_token = models.CharField(max_length=100, null=True, blank=True)
+    token_created_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return self.user.username
 
@@ -37,5 +40,8 @@ class BuyerDetails(models.Model):
     city = models.CharField(max_length=100, null=True, blank=True)
     profile_image = models.URLField(blank=True, null=True)
 
+    reset_token = models.CharField(max_length=100, null=True, blank=True)
+    token_created_at = models.DateTimeField(null=True, blank=True)
+    
     def __str__(self):
         return self.user.username
