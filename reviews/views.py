@@ -1,5 +1,6 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .models import Review
 from .serializers import ReviewSerializer
 from django.db.models import Avg, Count
@@ -11,6 +12,7 @@ def get_reviews(request, product_id):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def add_review(request):
     serializer = ReviewSerializer(data=request.data)
     if serializer.is_valid():

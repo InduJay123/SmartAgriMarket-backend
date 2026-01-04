@@ -9,3 +9,13 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ["id", "product", "user", "user_name",  "profile_image", "rating", "comment", "created_at"]
+
+    def get_user_name(self, obj):
+        if hasattr(obj.user, 'buyerdetails'):
+            return obj.user.buyerdetails.fullname
+        return obj.user.username  # fallback
+
+    def get_profile_image(self, obj):
+        if hasattr(obj.user, 'buyerdetails'):
+            return obj.user.buyerdetails.profile_image or ""
+        return ""
