@@ -17,7 +17,7 @@ def get_favourites(request):
     favourites = Favourite.objects.filter(
         user=request.user
     ).select_related('market')
-
+    markets = [fav.market for fav in favourites]
     serializer = MarketplaceSerializer(markets, many=True)
     return Response(serializer.data)
 
@@ -26,7 +26,7 @@ def get_favourites(request):
 @permission_classes([IsAuthenticated])
 def toggle_favourite(request, market_id):
     try:
-        market = Marketplace.objects.get(pk=market_id)
+        market = Marketplace.objects.get(market_id=market_id)
     except Marketplace.DoesNotExist:
         return Response(
             {"error": "Product not found"},
@@ -39,7 +39,7 @@ def toggle_favourite(request, market_id):
     )
 
     if not created:
-        fav.delete()
+        favourite.delete()
         return Response({"message": "Removed from favourites"})
 
     return Response({"message": "Added to favourites"})

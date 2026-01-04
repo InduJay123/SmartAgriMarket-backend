@@ -17,8 +17,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('products/', get_available_products, name='available_products'),
     path('favourites/', get_favourites, name='get_favourites'),
-    path(
-        'favourites/toggle/<int:market_id>/',
+    path('favourites/toggle/<int:market_id>/',
         toggle_favourite,
         name='toggle_favourite'
     ),

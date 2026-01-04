@@ -54,12 +54,14 @@ class Favourite(models.Model):
     market = models.ForeignKey(
         Marketplace,
         on_delete=models.CASCADE,
-        related_name="favourited_by"
+        related_name="favourited_by",
+        to_field='market_id'
     )
 
     class Meta:
         db_table = 'marketplace_favourites'
         unique_together = ('user', 'market')
+        managed = False
 
     def __str__(self):
         return f"{self.user.username} ❤️ {self.market.market_id}"
