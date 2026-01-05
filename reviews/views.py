@@ -40,3 +40,21 @@ def review_summary(request, market_id):
         "avg": round(summary["avg"] or 0, 1),
         "total": summary["total"]
     })
+
+@api_view(['GET'])
+def farmer_rating_summary(request, farmer_id):
+    summary = Review.objects.filter(
+        product__farmer_id=farmer_id
+    ).aggregate(
+        avg_rating=Avg('rating'),
+        total_reviews=Count('id')
+    )
+
+    avg = summary["avg_rating"] or 0
+
+    return Response({
+        "farmer_id": farmer_id,
+        "average_rating": round(avg, 1),   # max 5.0
+        "total_reviews": summary["total_reviews"],
+        "max_rating": 5
+    })
