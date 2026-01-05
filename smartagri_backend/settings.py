@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'documents',
     'reviews',
     'accounts',
+    'chat'
     #'crops'
 ]
 

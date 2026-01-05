@@ -155,7 +155,7 @@ class BuyerProfileAPI(APIView):
                     "company_email": buyer.company_email,
                     "company_phone": buyer.company_phone,
                     "profile_image": getattr(buyer, "profile_image", ""),
-                    "street_address": getattr(buyer, "street_address", ""),
+                    "address": getattr(buyer, "address",""),
                     "city": getattr(buyer, "city", ""),
                 }
             }
@@ -174,11 +174,11 @@ class BuyerProfileAPI(APIView):
             buyer.username = data.get("username", buyer.username)
             buyer.email = data.get("email", buyer.email)
 
-            buyer.company_name = data.get("market_name", buyer.company_name)
+            buyer.company_name = data.get("company_name", buyer.company_name)
             buyer.company_email = data.get("company_email", buyer.company_email)
             buyer.company_phone = data.get("company_phone", buyer.company_phone)
 
-            buyer.street_address = data.get("street_address", getattr(buyer, "street_address", ""))
+            buyer.address = data.get("address", getattr(buyer, "address", ""))
             buyer.city = data.get("city", getattr(buyer, "city", ""))
             buyer.profile_image = data.get("profile_image", getattr(buyer, "profile_image", ""))
             
@@ -194,7 +194,7 @@ class BuyerProfileAPI(APIView):
                     "company_email": buyer.company_email,
                     "company_phone": buyer.company_phone,
                     "profile_image": buyer.profile_image,
-                    "street_address": buyer.street_address,
+                    "address": buyer.address,
                     "city": buyer.city,
                 }
             })
