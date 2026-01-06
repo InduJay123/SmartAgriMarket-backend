@@ -51,7 +51,14 @@ r2 = r2_score(y_test, y_pred)
 rmse, mae, r2
 
 
+import matplotlib.pyplot as plt
 
+plt.figure()
+plt.plot(y_test.values, label="Actual")
+plt.plot(y_pred, label="Predicted")
+plt.legend()
+plt.title("Actual vs Predicted Demand")
+plt.show()
 
 
 product = "Bean"
