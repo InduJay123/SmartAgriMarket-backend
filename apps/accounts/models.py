@@ -23,7 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('BUYER', 'Buyer'),
     )
     email = models.EmailField(unique=True)
-    full_name = models.CharField(max_length=255, blank=True)
+    username = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

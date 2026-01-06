@@ -4,14 +4,14 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'full_name', 'phone', 'role', 'is_verified']
+        fields = ['id', 'email', 'username', 'phone', 'role', 'is_verified']
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'full_name', 'phone', 'role']
+        fields = ['email', 'password', 'username', 'phone', 'role']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
