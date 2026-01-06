@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from .models import Review
 from .serializers import ReviewSerializer
 from django.db.models import Avg, Count
@@ -28,6 +28,7 @@ def add_review(request):
     return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def review_summary(request, market_id):
     summary = Review.objects.filter(
         product_id=market_id
