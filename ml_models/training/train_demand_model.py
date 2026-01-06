@@ -58,6 +58,11 @@ def prepare_data(df: pd.DataFrame) -> tuple:
 
 def train_model(X: np.ndarray, y: np.ndarray):
     """Train demand prediction model."""
+
+    
+
+
+    
     try:
         predictor = DemandPredictor()
         predictor.train(X, y)
