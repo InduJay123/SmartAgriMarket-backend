@@ -64,4 +64,11 @@ product_code = le.transform([product])[0]
 
 last_demand = df[df["product_name"] == product]["demand_mt"].iloc[-1]
 
+future = pd.DataFrame({
+    "year": [2025],
+    "month": [10],
+    "lag_1": [last_demand],
+    "product_encoded": [product_code]
+})
 
+model.predict(future)
