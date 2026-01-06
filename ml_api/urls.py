@@ -10,6 +10,7 @@ from .views import (
     YieldPredictionView,
     PricePredictionView,
     DemandPredictionView,
+    PredictionExplainerView,
 )
 
 router = DefaultRouter()
@@ -21,4 +22,5 @@ urlpatterns = [
     path('predict/yield/', YieldPredictionView.predict, name='yield-predict'),
     path('predict/price/', PricePredictionView.predict, name='price-predict'),
     path('predict/demand/', DemandPredictionView.predict, name='demand-predict'),
+    path('explain/', PredictionExplainerView.explain, name='prediction-explain'),
 ]
