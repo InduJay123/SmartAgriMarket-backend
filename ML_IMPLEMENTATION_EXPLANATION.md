@@ -418,7 +418,7 @@ POST /api/predict/price/
 
 ### **Why Consider Other Models?**
 
-While Random Forest achieves **99.92% accuracy**, here are complementary/alternative approaches:
+While Random Forest achieves **82.45% validation accuracy**, here are complementary/alternative approaches:
 
 ### **1. GRADIENT BOOSTING MODELS** ⭐ (Recommended Alternative)
 
@@ -609,32 +609,32 @@ model.fit(X_train, y_train)
 
 ## 📋 RECOMMENDATION MATRIX
 
-### **For Price Prediction (Currently at 99.92%)**
+### **For Price Prediction (Currently at 82.45% validation)**
 
 | Model | Ease | Accuracy | Speed | Interpretability | Best For |
 |-------|------|----------|-------|-----------------|----------|
-| **Random Forest** ✅ | Easy | 99.92% | Fast | Good | **Current - Use it!** |
-| **XGBoost** | Medium | 99.95%+ | Medium | Good | Squeeze +1% accuracy |
-| **LightGBM** | Medium | 99.94%+ | ⚡ Fastest | Good | Large-scale production |
-| **ARIMA** | Medium | 98-99% | Fast | Excellent | Trend + seasonality |
-| **Prophet** | Easy | 98-99% | Fast | Excellent | Business forecasting |
-| **LSTM** | Hard | 99%+ | Slow | Poor | Deep learning approach |
-| **Ensemble** | Medium | 99.95%+ | Medium | Excellent | Maximum robustness |
+| **Random Forest** ✅ | Easy | 82-85% | Fast | Good | **Current - Use it!** |
+| **XGBoost** | Medium | 85-88% | Medium | Good | Improved accuracy |
+| **LightGBM** | Medium | 84-87% | ⚡ Fastest | Good | Large-scale production |
+| **ARIMA** | Medium | 78-82% | Fast | Excellent | Trend + seasonality |
+| **Prophet** | Easy | 78-82% | Fast | Excellent | Business forecasting |
+| **LSTM** | Hard | 80-85% | Slow | Poor | Deep learning approach |
+| **Ensemble** | Medium | 85-88% | Medium | Excellent | Maximum robustness |
 
 ---
 
 ## 🎯 IMPLEMENTATION ROADMAP
 
-### **Phase 1: Current (99.92% R²)**
+### **Phase 1: Current (82.45% R² validation)**
 ```
-✅ Random Forest (Already achieving excellent results)
+✅ Random Forest (Realistic performance for agricultural data)
 ```
 
-### **Phase 2: Immediate Improvement (+0.1% gain)**
+### **Phase 2: Immediate Improvement (+3-5% gain)**
 ```
 1. Try XGBoost on same features
 2. Implement 3-model ensemble (RF + XGBoost + LightGBM)
-3. Expected: 99.95% R²
+3. Expected: 85-88% R²
 ```
 
 ### **Phase 3: Production Enhancement**

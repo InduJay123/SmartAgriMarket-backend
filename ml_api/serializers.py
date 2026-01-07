@@ -49,11 +49,11 @@ class YieldPredictionRequestSerializer(serializers.Serializer):
     """Serializer for yield prediction request."""
 
     crop_type = serializers.CharField(max_length=100)
-    rainfall = serializers.FloatField()
-    temperature = serializers.FloatField()
-    soil_quality = serializers.CharField(max_length=50)
-    fertilizer = serializers.FloatField()
-    irrigation = serializers.BooleanField()
+    rainfall = serializers.FloatField(required=False, default=150)
+    temperature = serializers.FloatField(required=False, default=28)
+    soil_quality = serializers.CharField(max_length=50, required=False, default='good')
+    fertilizer = serializers.FloatField(required=False, default=50)
+    irrigation = serializers.BooleanField(required=False, default=True)
 
 
 class PricePredictionRequestSerializer(serializers.Serializer):

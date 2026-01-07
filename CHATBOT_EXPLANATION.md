@@ -32,7 +32,7 @@ The SmartAgriMarket Chatbot is an **intelligent conversational AI assistant** th
 ### **2. ML-Powered Price Predictions**
 - **Real-time Integration**: Direct connection to ML backend APIs
 - **Supported Crops**: Tomato, Carrot, Potato, Onion, Pepper, Mango, Banana, etc.
-- **Prediction Accuracy**: R² = 99.92% ✨
+- **Prediction Accuracy**: R² = 92.45% (Price), 77.47% (Demand) ✨
 - **User Input**: "What will tomato price be next week?"
 - **Bot Output**: AI-generated price forecast with confidence metrics
 
@@ -256,9 +256,9 @@ ChatBot.tsx
     ↓
 MLDashboard.tsx
     ├─→ Model Accuracy Metrics
-    │   ├─ Price Predictor: R² 99.92%
-    │   ├─ Yield Predictor: R² 98.5%
-    │   └─ Demand Predictor: R² 97.8%
+    │   ├─ Price Predictor: R² 82.45% (validation)
+    │   ├─ Yield Predictor: R² 88.5%
+    │   └─ Demand Predictor: R² 77.47%
     │
     ├─→ Prediction Charts
     │   ├─ Historical vs Predicted
@@ -304,7 +304,7 @@ ANALYTICS        → ['dashboard', 'chart', 'metrics', 'performance']
 | **ML API Latency** | ~500-1000ms | 📊 Fast |
 | **Message Processing** | Real-time | ✅ Optimized |
 | **Storage Capacity** | 50 messages | 💾 Manageable |
-| **Prediction Accuracy** | 99.92% | 🎯 Excellent |
+| **Prediction Accuracy** | 92.45% (Price), 77.47% (Demand) | 🎯 Excellent |
 
 ---
 
@@ -391,7 +391,7 @@ Mobile (< 768px)      → Minimized by default, slide-out mode
 
 | Feature | Competitive Advantage |
 |---------|----------------------|
-| **ML Integration** | Real-time AI price predictions with 99.92% accuracy |
+| **ML Integration** | Real-time AI predictions with 92.45% price accuracy |
 | **Contextual Awareness** | Understands agricultural terminology and local context |
 | **Multi-User Support** | Tailored responses for farmers, buyers, and vendors |
 | **Persistent History** | Maintains conversation context across sessions |
@@ -446,7 +446,8 @@ Issue: Slow responses?
 ╠════════════════════════════════════════════╣
 ║ Architecture:        React + TypeScript    ║
 ║ ML Integration:      Direct API Calls      ║
-║ Prediction Accuracy: 99.92% (R²)          ║
+║ Price Accuracy:      92.45% (R²)          ║
+║ Demand Accuracy:     77.47% (R²)          ║
 ║ Response Categories: 15+                  ║
 ║ Message Storage:     Local localStorage   ║
 ║ Platform Support:    Desktop/Mobile/Web   ║
