@@ -1,7 +1,10 @@
 from rest_framework import serializers
-from .models import Alert
+from .models import UserAlert
 
-class AlertSerializer(serializers.ModelSerializer):
+class UserAlertSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source='alert.category')
+    message = serializers.CharField(source='alert.message')
+
     class Meta:
-        model = Alert
-        fields = '__all__'
+        model = UserAlert
+        fields = ['id', 'category', 'message']  # include other fields if needed
