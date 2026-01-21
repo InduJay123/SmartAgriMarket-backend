@@ -5,39 +5,37 @@ class PendingUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'role',
-            'is_verified'
+            "id",
+            "email",
+            "username",
+            "phone",
+            "role",
+            "is_verified",
+            "is_active",
         ]
 
 class FarmerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'is_verified',
-            'is_active',
-            'date_joined'
+            "id",
+            "email",
+            "username",
+            "phone",
+            "role",
+            "is_verified",
+            "is_active",
         ]
 
 class BuyerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id',
-            'username',
-            'email',
-            'first_name',
-            'last_name',
-            'is_verified',
-            'is_active',
-            'date_joined'
+            "id",
+            "email",
+            "username",
+            "phone",
+            "role",
+            "is_verified",
+            "is_active",
         ]

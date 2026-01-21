@@ -81,7 +81,7 @@ class FarmerListView(ListAPIView):
         elif status == 'blocked':
             queryset = queryset.filter(is_active=False)
 
-        return queryset.order_by('-date_joined')
+        return queryset.order_by('-id')
 
 class FarmerDetailView(RetrieveAPIView):
     permission_classes = [IsAdminUserOnly]
@@ -144,7 +144,7 @@ class BuyerListView(ListAPIView):
         elif status == 'blocked':
             queryset = queryset.filter(is_active=False)
 
-        return queryset.order_by('-date_joined')
+        return queryset.order_by('-id')
 
 from rest_framework.generics import RetrieveAPIView
 
