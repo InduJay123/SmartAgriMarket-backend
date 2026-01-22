@@ -14,6 +14,11 @@ class Alert(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        from notifications.utils import send_push
+        send_push(self.message, f"{self.crop_name} alert!")
+
 class UserAlert(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     alert = models.ForeignKey(Alert, on_delete=models.CASCADE)

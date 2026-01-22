@@ -28,5 +28,6 @@ urlpatterns = [
     path('api/reviews/', include('reviews.urls')),
     #path("api/farmer/", include("user.urls"))
     path("api/chat/", include("chat.urls")),
-    path("api/", include("alerts.urls")),
+    path("api/", include("alerts.urls")),   
+    path("api/", include("notifications.urls")),
 ]

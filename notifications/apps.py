@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class AlertsConfig(AppConfig):
+class NotificationsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'alerts'
+    name = 'notifications'
 
     def ready(self):
-        import alerts.signals
+        import notifications.firebase

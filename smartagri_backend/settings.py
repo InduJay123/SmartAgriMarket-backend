@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'reviews',
     'accounts',
     'chat',
-    'alerts'
+    'alerts.apps.AlertsConfig',
+    'notifications',
     #'crops'
 ]
 
