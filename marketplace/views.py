@@ -4,6 +4,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import Crop, Marketplace, Favourite
 from .serializers import CropSerializer, MarketplaceSerializer
+from accounts.permissions import IsActiveFarmer
+from rest_framework.exceptions import ValidationError
 
 @api_view(['GET'])
 def get_available_products(request):
@@ -48,6 +50,13 @@ class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all()
     serializer_class = CropSerializer
 
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [] 
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAuthenticated(), IsActiveFarmer()]
+        return []
+
     def create(self, request, *args, **kwargs):
         crop_name = request.data.get("crop_name", "").strip()
 
@@ -72,6 +81,15 @@ class MarketplaceViewSet(viewsets.ModelViewSet):
     queryset = Marketplace.objects.select_related('crop').all()
     serializer_class = MarketplaceSerializer
 
+    def get_permissions(self):
+        # allow only logged users to see their own marketplace list
+        if self.action in ["list", "retrieve"]:
+            return [IsAuthenticated()]
+        # only verified farmers can create/update/delete
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAuthenticated(), IsActiveFarmer()]
+        return [IsAuthenticated()]
+
     def get_queryset(self):
         return Marketplace.objects.select_related('crop').filter(
             farmer_id=self.request.user.id
@@ -81,7 +99,6 @@ class MarketplaceViewSet(viewsets.ModelViewSet):
         # If crop ID is provided, use it directly
         crop_id = self.request.data.get("crop")
         if crop_id:
-            from .models import Crop
             try:
                 crop = Crop.objects.get(crop_id=crop_id)
             except Crop.DoesNotExist:

@@ -4,9 +4,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Chat
 from .serializers import ChatSerializer
+from accounts.permissions import IsActiveUser
 
 class SendMessageAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def post(self, request):
         receiver_id = request.data.get("receiver_id")
@@ -24,10 +25,9 @@ class SendMessageAPIView(APIView):
 
 
 class MessageListAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get(self, request, user_id):
-        # Fetch all messages between logged-in user and user_id
         chat = Chat.objects.filter(
             sender_id__in=[request.user.id, user_id],
             receiver_id__in=[request.user.id, user_id]
@@ -36,7 +36,7 @@ class MessageListAPIView(APIView):
         return Response(ChatSerializer(chat, many=True).data)
 
 class ConversationListAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsActiveUser]
 
     def get(self, request):
         user = request.user

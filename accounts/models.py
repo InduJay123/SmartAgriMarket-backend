@@ -21,6 +21,9 @@ class FarmerDetails(models.Model):
     reset_token = models.CharField(max_length=100, null=True, blank=True)
     token_created_at = models.DateTimeField(null=True, blank=True)
 
+    is_active = models.BooleanField(default=True)
+    deactivate_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return self.user.username
 
@@ -42,6 +45,9 @@ class BuyerDetails(models.Model):
 
     reset_token = models.CharField(max_length=100, null=True, blank=True)
     token_created_at = models.DateTimeField(null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    deactivate_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return self.user.username

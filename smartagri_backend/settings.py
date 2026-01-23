@@ -39,9 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    'crops',
-    'buyer',
-    'order',
     'marketplace',
     'documents',
     'reviews',
@@ -49,7 +46,7 @@ INSTALLED_APPS = [
     'chat',
     'alerts.apps.AlertsConfig',
     'notifications',
-    #'crops'
+    'crops',
 ]
 
 MIDDLEWARE = [
