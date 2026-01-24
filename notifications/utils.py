@@ -1,29 +1,37 @@
 from firebase_admin import messaging
+from .firebase import init_firebase
 from .models import FCMDevice
 from django.contrib.auth.models import User
 
-def send_push(title: str, body: str, users=None):
+def send_push(title: str, body: str, users=None, url: str | None = None):
     """
     Send FCM push notifications.
     - title: Notification title
     - body: Notification body
     - users: Optional list/queryset of User objects to target specific users
     """
-    if users:
-        tokens = FCMDevice.objects.filter(user__in=users).values_list("token", flat=True)
-    else:
-        tokens = FCMDevice.objects.values_list("token", flat=True)
+    init_firebase()
+    
+    qs = FCMDevice.objects.all()
+    if users is not None:
+        qs = qs.filter(user__in=users)
+
+    tokens = qs.values_list("token", flat=True)
 
     for token in tokens:
-        message = messaging.Message(
-            notification=messaging.Notification(
-                title=title,
-                body=body,
-            ),
-            token=token,
-        )
+        if not token:
+            continue
 
+        data = {}
+        if url:
+            data["url"] = url 
+            
+        msg = messaging.Message(
+            notification=messaging.Notification(title=title, body=body),
+            token=token,
+            data=data
+        )
         try:
-            messaging.send(message)
+            messaging.send(msg)
         except Exception as e:
-            print(f"Error sending to token {token}: {e}")
+            print("FCM error:", e)

@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import get_user_alerts, mark_alert_sent
+from .views import list_alerts, mark_all_seen, create_sudden_alert, create_scheduled_alert
 
 urlpatterns = [
-    path('user-alerts/', get_user_alerts, name="get_user_alerts"),
-    path('user-alerts/<int:alert_id>/sent/', mark_alert_sent, name="mark_user_alert_sent"),
+    path("alerts/", list_alerts),
+    path("mark-seen/", mark_all_seen),
+    path("sudden/", create_sudden_alert),
+    path("scheduled/", create_scheduled_alert),
 ]

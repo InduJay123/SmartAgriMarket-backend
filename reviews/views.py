@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from .models import Review
 from .serializers import ReviewSerializer
 from django.db.models import Avg, Count
+from accounts.permissions import IsActiveBuyer
 
 @api_view(['GET'])
 def get_reviews(request, product_id):
@@ -12,14 +13,14 @@ def get_reviews(request, product_id):
     return Response(serializer.data)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsActiveBuyer])
 def add_review(request):
     if not hasattr(request.user, "buyerdetails"):
         return Response(
             {"error": "Only buyers can add reviews"},
             status=403
         )
-
+    
     serializer = ReviewSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(user=request.user)
