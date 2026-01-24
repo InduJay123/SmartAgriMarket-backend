@@ -157,6 +157,10 @@ class DemandPredictor:
         month = features.get('month', 10)
         
         # Create feature vector
+
+
+
+        
         future = pd.DataFrame({
             "year": [year],
             "month": [month],
