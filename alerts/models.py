@@ -16,6 +16,12 @@ class Alert(models.Model):
         ("SENT", "Sent"),
     ]
 
+    LEVEL_CHOICES = [
+        ("LOW", "Low"),
+        ("HIGH", "High"),
+        ("NORMAL", "Normal"), 
+    ]
+
     title = models.CharField(max_length=150,default="System Alert")
     message = models.TextField()
     crop_name = models.CharField(max_length=100, blank=True, null=True)
@@ -24,6 +30,7 @@ class Alert(models.Model):
     alert_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="SENT")
 
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default="NORMAL")
     scheduled_for = models.DateTimeField(null=True, blank=True)  # only for scheduled
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -31,6 +31,7 @@ def list_alerts(request):
             "title": a.title,
             "message": a.message,
             "category": a.category,
+            "level": a.level,
             "alert_type": a.alert_type,
             "crop_name": a.crop_name,
             "created_at": a.created_at,
@@ -60,14 +61,19 @@ def create_sudden_alert(request):
     category = request.data.get("category")  # PRICE/DEMAND/WEATHER
     crop_name = request.data.get("crop_name", None)
     url = request.data.get("url", "/alerts")
+    level = request.data.get("level", None) 
 
     if not title or not message or not category:
         return Response({"error": "title, message, category required"}, status=400)
+
+    if category in ["PRICE", "DEMAND"] and level not in ["HIGH", "LOW"]:
+        return Response({"error": "level must be HIGH or LOW for PRICE/DEMAND alerts"}, status=400)
 
     alert = Alert.objects.create(
         title=title,
         message=message,
         category=category,
+        level=level,
         crop_name=crop_name,
         alert_type="SUDDEN",
         status="SENT",
@@ -92,7 +98,10 @@ def create_scheduled_alert(request):
     category = request.data.get("category")
     scheduled_for = request.data.get("scheduled_for")  # ISO datetime string
     url = request.data.get("url", "/alerts")
+    level = request.data.get("level", None)
 
+    if category in ["PRICE", "DEMAND"] and level not in ["HIGH", "LOW"]:
+        return Response({"error": "level must be HIGH or LOW for PRICE/DEMAND alerts"}, status=400)
     if not title or not message or not category or not scheduled_for:
         return Response({"error": "title, message, category, scheduled_for required"}, status=400)
 
@@ -100,6 +109,7 @@ def create_scheduled_alert(request):
         title=title,
         message=message,
         category=category,
+        level=level,
         alert_type="SCHEDULED",
         status="SCHEDULED",
         scheduled_for=scheduled_for,
