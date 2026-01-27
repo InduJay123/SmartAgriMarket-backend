@@ -5,6 +5,8 @@ Uses vegetable_demand3.csv dataset with Random Forest Regressor
 
 
 
+
+
 import os
 import pandas as pd
 import numpy as np
@@ -85,11 +87,13 @@ class DemandPredictor:
         y = self.df["demand_mt"]
         
         # Split data
+        
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, shuffle=False, random_state=42
         )
         
         # Train model
+        
         self.model = RandomForestRegressor(
             n_estimators=300,
             max_depth=15,
