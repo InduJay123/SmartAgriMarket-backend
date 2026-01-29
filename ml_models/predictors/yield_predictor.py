@@ -3,6 +3,8 @@ Crop Yield Prediction Module
 Predicts crop yield based on historical data and environmental factors using Random Forest.
 """
 
+
+
 import numpy as np
 import pandas as pd
 from typing import Dict
@@ -77,6 +79,8 @@ class YieldPredictor:
             self.model.fit(X_train, y_train)
             
             # Calculate accuracy metrics
+
+            
             y_pred = self.model.predict(X_test)
             self.accuracy_metrics = {
                 'r2': float(r2_score(y_test, y_pred)),
