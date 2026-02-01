@@ -13,17 +13,19 @@ class AdminFarmersListAPI(APIView):
 
     def get(self, request):
         farmers = FarmerDetails.objects.select_related("user").all().order_by("-id")
-        serializer = FarmerAdminSerializer(farmers, many=True)
+        serializer = FarmerAdminSerializer(farmers, many=True)    
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AdminBuyersListAPI(APIView):
     permission_classes = [IsAdminUser]
 
+    
     def get(self, request):
         buyers = BuyerDetails.objects.select_related("user").all().order_by("-id")
         serializer = BuyerAdminSerializer(buyers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class AdminVerifyUserAPI(APIView):
     permission_classes = [IsAdminUser]
