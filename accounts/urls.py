@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import SignupAPI, LoginAPI, FarmerProfileAPI,DeleteProfileImageAPI, BuyerProfileAPI,DeleteBuyerProfileImageAPI,ForgotPasswordAPIView, ResetPasswordAPIView
-from .admin_views import AdminFarmersListAPI,AdminBuyersListAPI,AdminVerifyUserAPI
+from .admin_views import AdminFarmersListAPI,AdminBuyersListAPI,AdminVerifyUserAPI, AdminLoginAPI
 
 urlpatterns = [
     path('signup/', SignupAPI.as_view()),
@@ -13,6 +13,7 @@ urlpatterns = [
     path("forgot-password/", ForgotPasswordAPIView.as_view()),
     path("reset-password/", ResetPasswordAPIView.as_view()),
 
+    path("admin/login/", AdminLoginAPI.as_view()),
     path("admin/farmers/", AdminFarmersListAPI.as_view()),
     path("admin/buyers/", AdminBuyersListAPI.as_view()),
     path("admin/verify/", AdminVerifyUserAPI.as_view()),
