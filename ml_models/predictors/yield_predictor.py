@@ -1,5 +1,16 @@
+
 import joblib
 from pathlib import Path
+=======
+"""
+Crop Yield Prediction Module
+Predicts crop yield based on historical data and environmental factors using Random Forest.
+"""
+
+
+
+import numpy as np
+
 import pandas as pd
 
 ART_DIR = Path("ml_models/models")
@@ -60,14 +71,78 @@ import joblib
 from pathlib import Path
 import pandas as pd
 
+
+
+
+
 class YieldPredictor:
     def __init__(self):
         base = Path(__file__).resolve().parents[1]  # ml_models/
         model_dir = base / "models"
 
+
         self.model = joblib.load(model_dir / "yield_rf.joblib")
         self.le = joblib.load(model_dir / "yield_label_encoder.joblib")
         self.last = joblib.load(model_dir / "yield_last.joblib")
+
+    def _load_and_train(self):
+        """Load data and train the model."""
+        try:
+            # Load dataset
+            if not os.path.exists(self.DEFAULT_DATASET_PATH):
+                logger.warning(f"Dataset not found at {self.DEFAULT_DATASET_PATH}")
+                return
+            
+            df = pd.read_csv(self.DEFAULT_DATASET_PATH)
+            logger.info(f"Loaded {len(df)} records from yield dataset")
+            
+            # Prepare features
+            self.product_encoder.fit(df['product'].unique())
+            self.soil_encoder.fit(df['soil_quality'].unique())
+            
+            # Encode categorical variables
+            df['product_encoded'] = self.product_encoder.transform(df['product'])
+            df['soil_encoded'] = self.soil_encoder.transform(df['soil_quality'])
+            
+            # Select features
+            X = df[['product_encoded', 'rainfall_mm', 'temperature_c', 
+                    'soil_encoded', 'fertilizer_kg', 'irrigation', 'month']]
+            y = df['yield_kg_per_ha']
+            
+            # Split data (80/20 split)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42, shuffle=True
+            )
+            
+            # Train Random Forest model
+            self.model = RandomForestRegressor(
+                n_estimators=150,
+                max_depth=12,
+                random_state=42,
+                n_jobs=-1
+            )
+            
+            self.model.fit(X_train, y_train)
+            
+            # Calculate accuracy metrics
+
+            
+            y_pred = self.model.predict(X_test)
+            self.accuracy_metrics = {
+                'r2': float(r2_score(y_test, y_pred)),
+                'mae': float(mean_absolute_error(y_test, y_pred)),
+                'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred)))
+            }
+            
+            self.is_trained = True
+            logger.info(f"Yield model trained - R²: {self.accuracy_metrics['r2']:.4f}, "
+                       f"MAE: {self.accuracy_metrics['mae']:.2f}, "
+                       f"RMSE: {self.accuracy_metrics['rmse']:.2f}")
+            
+        except Exception as e:
+            logger.error(f"Error loading/training yield model: {str(e)}")
+            self.is_trained = False
+
 
     def _season(self, month: int) -> int:
         return 0 if month in [10, 11, 12, 1, 2, 3] else 1
