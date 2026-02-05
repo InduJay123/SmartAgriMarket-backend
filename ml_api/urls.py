@@ -8,6 +8,7 @@ from .views import (
     PredictionHistoryViewSet,
     ModelMetadataViewSet,
     yield_predict,
+    yield_forecast,
     price_predict,
     demand_predict,
     prediction_explain,
@@ -20,6 +21,7 @@ router.register(r'models', ModelMetadataViewSet, basename='model-metadata')
 urlpatterns = [
     path('', include(router.urls)),
     path('predict/yield/', yield_predict, name='yield-predict'),
+    path('yield/forecast/', yield_forecast, name='yield-forecast'),
     path('predict/price/', price_predict, name='price-predict'),
     path('predict/demand/', demand_predict, name='demand-predict'),
     path('explain/', prediction_explain, name='prediction-explain'),

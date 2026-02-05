@@ -389,3 +389,64 @@ def prediction_explain(request):
             {'error': str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+    from datetime import date
+from dateutil.relativedelta import relativedelta  # pip install python-dateutil (usually already installed)
+
+@api_view(['POST'])
+def yield_forecast(request):
+    """
+    Forecast yield for N future months (for chart).
+    Expected payload:
+      { "crop_type": "Tomato", "months": 6 }
+    """
+    crop_type = request.data.get("crop_type")
+    months = request.data.get("months", 6)
+
+    # Basic validation
+    if not crop_type:
+        return Response({"error": "crop_type is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        months = int(months)
+    except Exception:
+        return Response({"error": "months must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if months < 1 or months > 24:
+        return Response({"error": "months must be between 1 and 24"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        predictor = get_yield_predictor()  # you already use this singleton pattern:contentReference[oaicite:2]{index=2}
+
+        # IMPORTANT:
+        # Your YieldPredictor must implement: forecast(crop_type: str, months: int) -> list[dict]
+        # Example return:
+        # [
+        #   {"month": "2026-02", "predicted_yield": 3100.5},
+        #   {"month": "2026-03", "predicted_yield": 2950.2},
+        # ]
+        series = predictor.forecast(crop_type=crop_type, months=months)
+
+        # Optional: store only the "request" in history (not every month)
+        try:
+            PredictionHistory.objects.create(
+                prediction_type="yield_forecast",
+                crop_name=crop_type,
+                input_features={"months": months},
+                predicted_value=series[-1]["predicted_yield"] if series else 0,
+            )
+        except Exception:
+            pass
+
+        return Response({
+            "prediction_type": "yield_forecast",
+            "crop_type": crop_type,
+            "months": months,
+            "unit": "kg/hectare",
+            "series": series,   # <-- frontend uses this for chart
+        })
+
+    except Exception as e:
+        logger.error(f"Error in yield forecast: {str(e)}", exc_info=True)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
