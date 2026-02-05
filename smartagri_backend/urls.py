@@ -27,5 +27,12 @@ urlpatterns = [
     path("api/alerts/", include("alerts.urls")),   
     path("api/notifications/", include("notifications.urls")),
     path("api/crops/", include("crops.urls")),
+    path("api/prices/", include("prices.urls")),
+
 
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
