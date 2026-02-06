@@ -1,3 +1,4 @@
+from asyncio.log import logger
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser
@@ -31,14 +32,28 @@ class AdminVerifyUserAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def patch(self, request):
-        role = request.data.get("role")  
-        user_id = request.data.get("user_id")
-        is_active = request.data.get("is_active")  
+        # logger.warning("==== VERIFY HIT ====")
+        # logger.warning("content_type=%s", request.content_type)
+        # logger.warning("data=%s", request.data)
+        # return Response({"ok": True, "data": request.data}, status=200)
 
-        if role not in ["Farmer", "Buyer"]:
+
+        role = request.data.get("role")
+        user_id = request.data.get("user_id")
+        is_active = request.data.get("is_active")
+
+        if not role or not user_id:
+            return Response({"error": "role and user_id are required"}, status=400)
+
+        role_normalized = str(role).strip().lower()
+
+        if role_normalized in ["farmer", "farmers", "f"]:
+            model = FarmerDetails
+        elif role_normalized in ["buyer", "buyers", "b"]:
+            model = BuyerDetails
+        else:
             return Response({"error": "role must be Farmer or Buyer"}, status=400)
 
-        model = FarmerDetails if role == "Farmer" else BuyerDetails
         profile = model.objects.filter(user_id=user_id).first()
         if not profile:
             return Response({"error": "Profile not found"}, status=404)
@@ -47,6 +62,7 @@ class AdminVerifyUserAPI(APIView):
         profile.deactivate_at = timezone.now() if not profile.is_active else None
         profile.save()
 
+       
         return Response({"message": "Updated", "is_active": profile.is_active})
 
 
@@ -98,3 +114,32 @@ class AdminLoginAPI(APIView):
                 "role": "Admin"
             }
         }, status=status.HTTP_200_OK)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+
+from .models import FarmerDetails, BuyerDetails
+from crops.models import Crop  # your Crop model uses db_table='crops'
+
+class AdminDashboardStatsAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        total_farmers = FarmerDetails.objects.count()
+
+        verified_farmers = FarmerDetails.objects.filter(is_active=True).count()
+        pending_approvals = FarmerDetails.objects.filter(is_active=False).count()
+
+        buyers = BuyerDetails.objects.count()
+        crops = Crop.objects.count()
+
+        return Response({
+            "verified_farmers": verified_farmers,
+            "pending_approvals": pending_approvals,
+            "buyers": buyers,
+            "crops": crops,
+            "total_farmers": total_farmers,
+        })
+       
