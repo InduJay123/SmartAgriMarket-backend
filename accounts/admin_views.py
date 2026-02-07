@@ -142,4 +142,49 @@ class AdminDashboardStatsAPI(APIView):
             "crops": crops,
             "total_farmers": total_farmers,
         })
-       
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+
+from .models import FarmerDetails, BuyerDetails
+
+class AdminUserDetailAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, user_id):
+        farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
+        if farmer:
+            return Response({
+                "id": farmer.user_id,
+                "role": "Farmer",
+                "email": farmer.user.email,
+                "username": farmer.user.username,
+                "fullname": farmer.fullname,
+                "contact_number": farmer.contact_number,
+                "region": farmer.region,
+                "farm_name": farmer.farm_name,
+                "address": farmer.address,
+                "about": farmer.about,
+                "is_active": farmer.is_active,
+            })
+
+        buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
+        if buyer:
+            return Response({
+                "id": buyer.user_id,
+                "role": "Buyer",
+                "email": buyer.user.email,
+                "username": buyer.user.username,
+                "fullname": buyer.fullname,
+                "contact_number": buyer.contact_number,
+                "company_name": buyer.company_name,
+                "company_email": buyer.company_email,
+                "company_phone": buyer.company_phone,
+                "address": buyer.address,
+                "city": buyer.city,
+                "is_active": buyer.is_active,
+            })
+
+        return Response({"error": "Profile not found"}, status=404)
+
