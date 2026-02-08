@@ -1,103 +1,119 @@
-"""
-Training script for demand prediction model.
-"""
 
-import logging
-import numpy as np
+import os
+import joblib
 import pandas as pd
-from pathlib import Path
+import numpy as np
+from datetime import datetime
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error
 
-from ml_models.predictors import DemandPredictor
-from ml_models.preprocessing import DataCleaner, DataValidator, FeatureEngineer
-from ml_models.utils.config import Config
-from ml_models.utils.helpers import save_model
-from ml_models.utils.logger import setup_logger
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # ml_models/
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+os.makedirs(MODELS_DIR, exist_ok=True)
 
-logger = setup_logger(__name__)
-
-
-def load_training_data(data_path: str) -> pd.DataFrame:
-    """Load training data from CSV."""
-    try:
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} samples from {data_path}")
-        return df
-    except Exception as e:
-        logger.error(f"Error loading data: {str(e)}")
-        raise
+MODEL_PATH = os.path.join(MODELS_DIR, "demand_model.pkl")
+META_PATH = os.path.join(MODELS_DIR, "demand_model_meta.pkl")
 
 
-def prepare_data(df: pd.DataFrame) -> tuple:
-    """Prepare data for training."""
-    try:
-        # Validate schema
-        required_columns = ['crop_type', 'season', 'historical_demand', 'population', 'consumption_trend', 'demand']
-        if not DataValidator.validate_schema(df, required_columns):
-            raise ValueError("Missing required columns")
-
-        # Clean data
-        df = DataCleaner.handle_missing_values(df)
-        
-        # Remove outliers
-        numeric_columns = ['historical_demand', 'population', 'demand']
-        df = DataCleaner.remove_outliers(df, numeric_columns)
-
-        # Encode categorical variables
-        df = FeatureEngineer.encode_categorical(df, ['crop_type', 'season', 'consumption_trend'])
-
-        # Prepare features and target
-        X = df.drop('demand', axis=1)
-        y = df['demand']
-
-        logger.info("Data preparation completed")
-        return X, y
-    except Exception as e:
-        logger.error(f"Error preparing data: {str(e)}")
-        raise
+def _season_code(month: int) -> int:
+    # Sri Lanka seasons (roughly)
+    # Northeast monsoon: Dec-Feb
+    # First inter-monsoon: Mar-Apr
+    # Southwest monsoon: May-Sep
+    # Second inter-monsoon: Oct-Nov
+    if month in (12, 1, 2):
+        return 0
+    if month in (3, 4):
+        return 1
+    if month in (5, 6, 7, 8, 9):
+        return 2
+    return 3  # 10,11
 
 
-def train_model(X: np.ndarray, y: np.ndarray):
-    """Train demand prediction model."""
+def make_features(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
 
-    
+    # Parse year_month
+    df["year_month"] = df["year_month"].astype(str)
+    df["date"] = pd.to_datetime(df["year_month"] + "-01", errors="coerce")
 
+    df = df.dropna(subset=["date", "product_name", "demand_mt"]).copy()
+    df = df.sort_values(["product_name", "date"])
 
-    
-    try:
-        predictor = DemandPredictor()
-        predictor.train(X, y)
-        
-        # Save model
-        model_path = Config.MODELS_DIR / 'demand_predictor.pkl'
-        save_model(predictor, str(model_path))
-        
-        logger.info(f"Model saved to {model_path}")
-        return predictor
-    except Exception as e:
-        logger.error(f"Error training model: {str(e)}")
-        raise
+    df["year"] = df["date"].dt.year
+    df["month"] = df["date"].dt.month
+    df["season_code"] = df["month"].apply(_season_code)
 
+    # Lag features per crop
+    df["lag1"] = df.groupby("product_name")["demand_mt"].shift(1)
+    df["lag2"] = df.groupby("product_name")["demand_mt"].shift(2)
+    df["lag3"] = df.groupby("product_name")["demand_mt"].shift(3)
 
-def main():
-    """Main training function."""
-    try:
-        # Create directories
-        Config.create_directories()
-        
-        # Load and prepare data
-        # TODO: Replace with actual data path
-        data_path = Config.TRAINING_DATA_DIR / 'demand_training_data.csv'
-        # df = load_training_data(str(data_path))
-        # X, y = prepare_data(df)
-        
-        # Train model
-        # model = train_model(X.values, y.values)
-        
-        logger.info("Training completed successfully")
-    except Exception as e:
-        logger.error(f"Training failed: {str(e)}")
-        raise
+    # Rolling mean (previous 3 months)
+    df["roll3"] = (
+        df.groupby("product_name")["demand_mt"]
+        .shift(1)
+        .rolling(3, min_periods=1)
+        .mean()
+        .reset_index(level=0, drop=True)
+    )
+
+    # Drop rows where we don't have enough history
+    df = df.dropna(subset=["lag1", "lag2", "lag3"]).copy()
+
+    return df
 
 
-if __name__ == '__main__':
-    main()
+def train_from_excel(excel_path: str) -> dict:
+    raw = pd.read_excel(excel_path)
+
+    needed = {"year_month", "product_name", "demand_mt"}
+    if not needed.issubset(set(raw.columns)):
+        raise ValueError(f"Excel must contain columns: {needed}. Found: {list(raw.columns)}")
+
+    data = make_features(raw)
+
+    # Encode product_name as integer codes
+    products = sorted(data["product_name"].unique().tolist())
+    product_to_code = {p: i for i, p in enumerate(products)}
+    data["product_code"] = data["product_name"].map(product_to_code).astype(int)
+
+    feature_cols = ["product_code", "year", "month", "season_code", "lag1", "lag2", "lag3", "roll3"]
+    X = data[feature_cols].values
+    y = data["demand_mt"].values
+
+    model = RandomForestRegressor(
+        n_estimators=400,
+        random_state=42,
+        max_depth=None,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        n_jobs=-1,
+    )
+    model.fit(X, y)
+
+    # quick sanity metric (train MAE)
+    pred = model.predict(X)
+    mae = float(mean_absolute_error(y, pred))
+
+    joblib.dump(model, MODEL_PATH)
+    meta = {
+        "trained_at": datetime.utcnow().isoformat() + "Z",
+        "feature_cols": feature_cols,
+        "product_to_code": product_to_code,
+        "train_mae": mae,
+    }
+    joblib.dump(meta, META_PATH)
+
+    return {"model_path": MODEL_PATH, "meta_path": META_PATH, "train_mae": mae, "n_rows": int(len(data))}
+
+
+if __name__ == "__main__":
+    # Example usage:
+    # python ml_models/training/train_demand_model.py "path/to/your.xlsx"
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python train_demand_model.py <excel_path>")
+        sys.exit(1)
+    result = train_from_excel(sys.argv[1])
+    print(result)

@@ -11,18 +11,23 @@ from .views import (
     yield_forecast,
     price_predict,
     demand_predict,
+    demand_forecast,       # ✅ NEW
     prediction_explain,
 )
 
 router = DefaultRouter()
-router.register(r'history', PredictionHistoryViewSet, basename='prediction-history')
-router.register(r'models', ModelMetadataViewSet, basename='model-metadata')
+router.register(r"history", PredictionHistoryViewSet, basename="prediction-history")
+router.register(r"models", ModelMetadataViewSet, basename="model-metadata")
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('predict/yield/', yield_predict, name='yield-predict'),
-    path('yield/forecast/', yield_forecast, name='yield-forecast'),
-    path('predict/price/', price_predict, name='price-predict'),
-    path('predict/demand/', demand_predict, name='demand-predict'),
-    path('explain/', prediction_explain, name='prediction-explain'),
+    path("", include(router.urls)),
+    path("predict/yield/", yield_predict, name="yield-predict"),
+    path("yield/forecast/", yield_forecast, name="yield-forecast"),
+    path("predict/price/", price_predict, name="price-predict"),
+
+    # ✅ Demand endpoints
+    path("demand/forecast/", demand_forecast, name="demand-forecast"),  # <--- frontend should call this
+    path("predict/demand/", demand_predict, name="demand-predict"),      # keep old if needed
+
+    path("explain/", prediction_explain, name="prediction-explain"),
 ]

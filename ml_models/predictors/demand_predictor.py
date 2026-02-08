@@ -1,191 +1,156 @@
-"""
-Demand Predictor - Predicts vegetable demand in metric tons
-Uses vegetable_demand3.csv dataset with Random Forest Regressor
-"""
-
-
-
-
+# ml_models/predictors/demand_predictor.py
 
 import os
+import joblib
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-import pickle
+from datetime import date, datetime, timedelta
+import calendar
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # ml_models/
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
+MODEL_PATH = os.path.join(MODELS_DIR, "demand_model.pkl")
+META_PATH = os.path.join(MODELS_DIR, "demand_model_meta.pkl")
+
+
+def _season_code(month: int) -> int:
+    if month in (12, 1, 2):
+        return 0
+    if month in (3, 4):
+        return 1
+    if month in (5, 6, 7, 8, 9):
+        return 2
+    return 3
+
+
+TREND_MULTIPLIERS = {
+    "stable": 1.00,
+    "increasing": 1.05,
+    "decreasing": 0.95,
+    "seasonal peak": 1.10,
+    "seasonal low": 0.90,
+}
 
 
 class DemandPredictor:
-    """Predict crop demand based on historical data."""
-    
     def __init__(self):
         self.model = None
-        self.label_encoder = None
-        self.df = None
-        self.accuracy_metrics = {}
-        self.crop_mapping = {
-            'tomato': 'Tomato',
-            'tomatoes': 'Tomato',
-            'carrot': 'Carrot',
-            'carrots': 'Carrot',
-            'bean': 'Bean',
-            'beans': 'Bean',
-            'cabbage': 'Cabbage',
-            'capsicum': 'Capsicum',
-            'pepper': 'Capsicum',
-            'peppers': 'Capsicum',
-            'beet': 'Beet',
-            'pumpkin': 'Pumpkin',
-            'cucumber': 'Cucumber',
-            'okra': 'Okra',
-            'brinjal': 'Brinjal',
-            'eggplant': 'Brinjal'
-        }
-        self._load_or_train_model()
-    
-    def _load_or_train_model(self):
-        """Load trained model or train a new one."""
-        try:
-            # Try to load existing model
-            model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'demand_model.pkl')
-            encoder_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'demand_encoder.pkl')
-            
-            if os.path.exists(model_path) and os.path.exists(encoder_path):
-                with open(model_path, 'rb') as f:
-                    self.model = pickle.load(f)
-                with open(encoder_path, 'rb') as f:
-                    self.label_encoder = pickle.load(f)
+        self.meta = None
+
+    def load(self):
+        if not os.path.exists(MODEL_PATH) or not os.path.exists(META_PATH):
+            raise FileNotFoundError(
+                "Demand model not found. Train it first: ml_models/training/train_demand_model.py"
+            )
+        self.model = joblib.load(MODEL_PATH)
+        self.meta = joblib.load(META_PATH)
+        return self
+
+    def _product_code(self, product_name: str) -> int:
+        product_to_code = self.meta["product_to_code"]
+        if product_name not in product_to_code:
+            # fallback: map unknown product to closest behavior (0)
+            return 0
+        return int(product_to_code[product_name])
+
+    def _get_last_history(self, excel_df: pd.DataFrame, product_name: str):
+        """
+        Returns last known rows for that product for lag features.
+        """
+        df = excel_df.copy()
+        df["year_month"] = df["year_month"].astype(str)
+        df["date"] = pd.to_datetime(df["year_month"] + "-01", errors="coerce")
+        df = df.dropna(subset=["date", "product_name", "demand_mt"])
+        df = df[df["product_name"] == product_name].sort_values("date")
+        if len(df) < 4:
+            raise ValueError(f"Not enough history for {product_name}. Need at least 4 months.")
+        return df
+
+    def forecast_days(
+        self,
+        product_name: str,
+        forecast_days: int,
+        consumption_trend: str,
+        excel_df: pd.DataFrame,
+        start_day: date | None = None,
+    ):
+        """
+        Forecast daily demand for next N days using monthly model.
+        """
+        if self.model is None or self.meta is None:
+            self.load()
+
+        if start_day is None:
+            start_day = date.today()
+
+        trend_key = (consumption_trend or "stable").strip().lower()
+        base_mult = TREND_MULTIPLIERS.get(trend_key, 1.00)
+
+        hist = self._get_last_history(excel_df, product_name)
+
+        # Build initial lags from last 3 months
+        last_vals = hist["demand_mt"].tail(3).tolist()
+        lag1, lag2, lag3 = last_vals[-1], last_vals[-2], last_vals[-3]
+        roll3 = float(np.mean(last_vals))
+
+        # We forecast month-by-month as needed to cover forecast_days
+        results = []
+        cur = start_day
+
+        # helper to predict one month demand
+        def predict_month(y: int, m: int, lag1, lag2, lag3, roll3):
+            prod_code = self._product_code(product_name)
+            season = _season_code(m)
+            X = np.array([[prod_code, y, m, season, lag1, lag2, lag3, roll3]], dtype=float)
+            pred = float(self.model.predict(X)[0])
+            return max(pred, 0.0)
+
+        # Generate daily points
+        remaining = forecast_days
+        while remaining > 0:
+            y, m = cur.year, cur.month
+            days_in_month = calendar.monthrange(y, m)[1]
+            month_pred = predict_month(y, m, lag1, lag2, lag3, roll3)
+
+            # Convert to daily baseline
+            daily_base = month_pred / float(days_in_month)
+
+            # Apply trend smoothly across horizon (slight ramp)
+            # e.g. increasing: grows day by day a bit
+            for i in range(days_in_month):
+                if remaining <= 0:
+                    break
+                day = cur + timedelta(days=i)
+                # ramp factor across requested range
+                t = (forecast_days - remaining) / max(forecast_days - 1, 1)
+                ramp = 1.0 + (base_mult - 1.0) * t
+                demand_day = daily_base * ramp
+                results.append({"date": day.isoformat(), "demand_tonnes": round(demand_day, 2)})
+                remaining -= 1
+
+            # Move to next month start
+            # update lags using predicted month demand (recursive)
+            lag3, lag2, lag1 = lag2, lag1, month_pred
+            roll3 = float(np.mean([lag1, lag2, lag3]))
+
+            # advance cur to first of next month
+            if m == 12:
+                cur = date(y + 1, 1, 1)
             else:
-                self._train_model()
-        except Exception as e:
-            print(f"Error loading model, training new one: {e}")
-            self._train_model()
-    
-    def _train_model(self):
-        """Train the demand prediction model."""
-        # Load data
-        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'vegetable_demand3.csv')
-        self.df = pd.read_csv(data_path)
-        
-        # Prepare data
-        self.df["year_month"] = pd.to_datetime(self.df["year_month"])
-        self.df = self.df.sort_values(["product_name", "year_month"])
-        
-        self.df["year"] = self.df["year_month"].dt.year
-        self.df["month"] = self.df["year_month"].dt.month
-        self.df["lag_1"] = self.df.groupby("product_name")["demand_mt"].shift(1)
-        self.df.dropna(inplace=True)
-        
-        # Encode product names
-        self.label_encoder = LabelEncoder()
-        self.df["product_encoded"] = self.label_encoder.fit_transform(self.df["product_name"])
-        
-        # Prepare features and target
-        X = self.df[["year", "month", "lag_1", "product_encoded"]]
-        y = self.df["demand_mt"]
-        
-        # Split data
-        
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, shuffle=False, random_state=42
-        )
-        
-        # Train model
-        
-        self.model = RandomForestRegressor(
-            n_estimators=300,
-            max_depth=15,
-            random_state=42,
-            n_jobs=-1
-        )
-        
-        self.model.fit(X_train, y_train)
-        
-        # Calculate accuracy metrics
-        y_pred = self.model.predict(X_test)
-        self.accuracy_metrics = {
-            'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred))),
-            'mae': float(mean_absolute_error(y_test, y_pred)),
-            'r2': float(r2_score(y_test, y_pred))
-        }
-        
-        # Save model
-        try:
-            model_dir = os.path.join(os.path.dirname(__file__), '..', 'models')
-            os.makedirs(model_dir, exist_ok=True)
-            
-            with open(os.path.join(model_dir, 'demand_model.pkl'), 'wb') as f:
-                pickle.dump(self.model, f)
-            with open(os.path.join(model_dir, 'demand_encoder.pkl'), 'wb') as f:
-                pickle.dump(self.label_encoder, f)
-        except Exception as e:
-            print(f"Could not save model: {e}")
-    
-    def predict(self, features):
-        """
-        Predict demand for a crop.
-        
-        Args:
-            features (dict): Dictionary with keys:
-                - crop_type: str (e.g., 'tomato', 'carrot')
-                - year: int (optional, defaults to 2025)
-                - month: int (optional, defaults to current + 1)
-        
-        Returns:
-            float: Predicted demand in metric tons
-        """
-        if self.model is None:
-            raise ValueError("Model not trained")
-        
-        # Get crop name
-        crop_input = features.get('crop_type', '').lower()
-        crop_name = self.crop_mapping.get(crop_input, crop_input.capitalize())
-        
-        # Check if crop is in our dataset
-        if crop_name not in self.label_encoder.classes_:
-            # Return average demand for unknown crops
-            if self.df is not None:
-                return float(self.df['demand_mt'].mean())
-            return 30000.0  # Fallback value
-        
-        # Encode product
-        product_code = self.label_encoder.transform([crop_name])[0]
-        
-        # Get last known demand for this product
-        if self.df is None:
-            self._load_or_train_model()
-        
-        last_demand = self.df[self.df["product_name"] == crop_name]["demand_mt"].iloc[-1]
-        
-        # Get year and month
-        year = features.get('year', 2025)
-        month = features.get('month', 10)
-        
-        # Create feature vector
+                cur = date(y, m + 1, 1)
 
-
-
-        
-        future = pd.DataFrame({
-            "year": [year],
-            "month": [month],
-            "lag_1": [last_demand],
-            "product_encoded": [product_code]
-        })
-        
-        # Predict
-        prediction = self.model.predict(future)[0]
-        return float(prediction)
-    
-    def get_accuracy(self):
-        """Get model accuracy metrics from actual training."""
-        if not self.accuracy_metrics:
-            # Re-train to get metrics if not available
-            self._train_model()
+        total = sum(x["demand_tonnes"] for x in results)
         return {
-            'r2_score': self.accuracy_metrics.get('r2', 0.0),
-            'mae': self.accuracy_metrics.get('mae', 0.0),
-            'rmse': self.accuracy_metrics.get('rmse', 0.0)
+            "crop": product_name,
+            "forecast_days": forecast_days,
+            "unit": "tonnes",
+            "consumption_trend": consumption_trend,
+            "predicted_total_tonnes": round(total, 2),
+            "data": results,
+            "model": {
+                "algorithm": "RandomForestRegressor",
+                "trained_at": self.meta.get("trained_at"),
+                "train_mae": self.meta.get("train_mae"),
+            },
         }

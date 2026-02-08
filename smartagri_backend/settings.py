@@ -47,7 +47,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -128,13 +127,11 @@ STATIC_URL = 'static/'
 # CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React frontend
-    "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:5175",
     "http://localhost:5176",
     "http://localhost:5177",
     "http://localhost:5178",
-    "http://127.0.0.1:5173",
     "http://127.0.0.1:5177",
 ]
 
@@ -149,7 +146,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-INSTALLED_APPS += ["corsheaders"]
+
 
 MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware", *MIDDLEWARE]
 
