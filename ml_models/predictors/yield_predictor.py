@@ -72,9 +72,6 @@ from pathlib import Path
 import pandas as pd
 
 
-
-
-
 class YieldPredictor:
     def __init__(self):
         base = Path(__file__).resolve().parents[1]  # ml_models/
