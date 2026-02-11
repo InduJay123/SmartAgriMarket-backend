@@ -52,3 +52,50 @@ class ModelMetadata(models.Model):
 
     def __str__(self):
         return f"{self.model_type} v{self.model_version}"
+
+
+
+class TrendAlert(models.Model):
+    METRIC_CHOICES = [
+        ("PRICE", "Price"),
+        ("DEMAND", "Demand"),
+        ("YIELD", "Yield"),
+    ]
+    DIRECTION_CHOICES = [
+        ("UP", "Up"),
+        ("DOWN", "Down"),
+    ]
+    SEVERITY_CHOICES = [
+        ("LOW", "Low"),
+        ("MEDIUM", "Medium"),
+        ("HIGH", "High"),
+    ]
+    STATUS_CHOICES = [
+        ("NEW", "New"),
+        ("NOTIFIED", "Notified"),
+        ("IGNORED", "Ignored"),
+    ]
+
+    crop_id = models.IntegerField()  # or FK if you have Crops model
+    metric = models.CharField(max_length=10, choices=METRIC_CHOICES)
+    forecast_date = models.DateField()
+    predicted_value = models.FloatField()
+
+    baseline_value = models.FloatField(null=True, blank=True)
+    change_pct = models.FloatField(null=True, blank=True)
+
+    direction = models.CharField(max_length=10, choices=DIRECTION_CHOICES)
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default="MEDIUM")
+
+    reason = models.CharField(max_length=255, null=True, blank=True)
+    model_version = models.CharField(max_length=50, null=True, blank=True)
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="NEW")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("crop_id", "metric", "forecast_date", "direction")
+
+    def __str__(self):
+        return f"{self.metric} {self.direction} crop={self.crop_id} date={self.forecast_date}"
+
