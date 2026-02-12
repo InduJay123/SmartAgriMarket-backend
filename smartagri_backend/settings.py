@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'buyer',
     'cart',
     'ml_api',
+    'notifications_app',
     'chatbot',
 ]
 
@@ -82,10 +83,18 @@ WSGI_APPLICATION = 'smartagri_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'smartagrimarket',
+        'USER': 'root',
+        'PASSWORD': 'bankaimysql2001',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
+
 
 
 # Password validation
