@@ -16,4 +16,5 @@ class Notification(models.Model):
     status = models.CharField(max_length=20, default="ACTIVE")
 
     class Meta:
+        managed = False
         db_table = "notifications"
