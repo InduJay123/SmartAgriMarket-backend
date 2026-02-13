@@ -11,6 +11,7 @@ class FarmerDetailsAdmin(admin.ModelAdmin):
     def verify_selected(self, request, queryset):
         queryset.update(is_active=True, deactivate_at=timezone.now())
 
+
 @admin.register(BuyerDetails)
 class BuyerDetailsAdmin(admin.ModelAdmin):
     list_display = ("user", "is_active", "deactivate_at")
