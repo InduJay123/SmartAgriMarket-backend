@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'ml_api',
+    #'drf_yasg',  # Uncomment if drf-yasg is installed for Swagger docs
     #'crops'
 ]
 
