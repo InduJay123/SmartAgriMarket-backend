@@ -6,6 +6,7 @@ import os
 import pandas as pd
 from django.conf import settings
 from django.utils import timezone
+from datetime import timedelta
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view
@@ -316,6 +317,77 @@ def demand_predict(request):
     except Exception as e:
         logger.error(f"Error in demand prediction: {str(e)}", exc_info=True)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+def price_forecast(request):
+    """
+    Forecast DAILY price for next N days.
+    Expected payload:
+      {
+        "crop_type": "Tomato",
+        "forecast_days": 30
+      }
+    """
+    crop_type = request.data.get("crop_type") or request.data.get("crop")
+    forecast_days = request.data.get("forecast_days", 30)
+
+    if not crop_type:
+        return Response({"error": "crop_type is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        forecast_days = int(forecast_days)
+    except Exception:
+        return Response({"error": "forecast_days must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if forecast_days < 1 or forecast_days > 30:
+        return Response({"error": "forecast_days must be between 1 and 30"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        predictor = get_price_predictor()
+
+        # use your existing predict_future() from PricePredictor
+        series = predictor.predict_future(
+            product=crop_type,
+            days_ahead=forecast_days,
+            start_date=timezone.now()
+        )
+
+        if not series:
+            return Response({"error": "No forecast data available"}, status=status.HTTP_404_NOT_FOUND)
+
+        prices = [item["predicted_price"] for item in series]
+        today_price = prices[0] if prices else 0
+        avg_price = round(sum(prices) / len(prices), 2) if prices else 0
+
+        try:
+            PredictionHistory.objects.create(
+                prediction_type="price_forecast",
+                crop_name=crop_type,
+                input_features={"forecast_days": forecast_days},
+                predicted_value=today_price,
+            )
+        except Exception:
+            pass
+
+        return Response(
+            {
+                "prediction_type": "price_forecast",
+                "crop_type": crop_type,
+                "forecast_days": forecast_days,
+                "currency": "LKR",
+                "today_price": round(today_price, 2),   # Premium Price
+                "avg_30_days": avg_price,               # Market Average
+                "series": series                        # full 30-day list
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    except Exception as e:
+        logger.error(f"Error in price forecast: {str(e)}", exc_info=True)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 @api_view(["POST"])
