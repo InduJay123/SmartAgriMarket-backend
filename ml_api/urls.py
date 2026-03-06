@@ -10,6 +10,7 @@ from .views import (
     yield_predict,
     yield_forecast,
     price_predict,
+    price_forecast,
     demand_predict,
     demand_forecast,       # ✅ NEW
     prediction_explain,
@@ -30,4 +31,6 @@ urlpatterns = [
     path("predict/demand/", demand_predict, name="demand-predict"),      # keep old if needed
 
     path("explain/", prediction_explain, name="prediction-explain"),
+
+    path("price/forecast/", price_forecast, name="price-forecast"),
 ]
