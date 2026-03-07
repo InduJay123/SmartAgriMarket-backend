@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Crop model
 class Crop(models.Model):
-    crop_id = models.AutoField(primary_key=True)
+    crop_id = models.BigAutoField(primary_key=True)
     crop_name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     image = models.CharField(max_length=255, blank=True, null=True)  # Can store file path or URL
@@ -14,7 +14,7 @@ class Crop(models.Model):
     
     class Meta:
         db_table = 'crops'
-        managed = False
+        managed = True
 
 # Marketplace model
 class Marketplace(models.Model):
