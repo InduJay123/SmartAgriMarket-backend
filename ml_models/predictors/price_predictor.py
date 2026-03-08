@@ -422,6 +422,9 @@ class PricePredictor:
         date = features.get('date', datetime.now())
         if isinstance(date, str):
             date = pd.to_datetime(date)
+        elif hasattr(date, 'tzinfo') and date.tzinfo is not None:
+            # Convert timezone aware to timezone naive
+            date = date.replace(tzinfo=None)
         
         product = features.get('product', 'Tomato')
         
