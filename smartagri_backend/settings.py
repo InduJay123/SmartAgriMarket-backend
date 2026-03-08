@@ -106,7 +106,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'smartagrimarket',
         'USER': 'root',
-        'PASSWORD': bankaimysql,
+        'PASSWORD': 'bankaimysql',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
