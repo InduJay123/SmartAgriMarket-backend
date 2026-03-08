@@ -54,8 +54,6 @@ INSTALLED_APPS = [
     'crops',
     'prices',
     'dashboard',
-    'buyer',
-    'cart',
     'ml_api',
     'notifications_app',
     'chatbot',
@@ -108,7 +106,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'smartagrimarket',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': bankaimysql,
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
