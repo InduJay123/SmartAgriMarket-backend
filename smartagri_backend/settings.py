@@ -54,10 +54,14 @@ INSTALLED_APPS = [
     'crops',
     'prices',
     'dashboard',
+    'buyer',
+    'cart',
+    'ml_api',
+    'notifications_app',
+    'chatbot',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -106,9 +110,13 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
-        'PORT': '3306'
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
+
 
 
 # Password validation
@@ -164,10 +172,40 @@ STATIC_URL = 'static/'
 # CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React frontend
-    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "http://localhost:5176",
+    "http://localhost:5177",
+    "http://localhost:5178",
+    "http://127.0.0.1:5177",
 ]
+
+# Allow all origins in development (easier for testing)
+CORS_ALLOW_ALL_ORIGINS = True
+
+# REST Framework settings - disable CSRF for API
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+
+
+
+MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware", *MIDDLEWARE]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# File upload settings
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (default is 2.5MB)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (default is 2.5MB)
