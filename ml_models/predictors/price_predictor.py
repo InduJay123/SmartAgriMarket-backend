@@ -172,7 +172,7 @@ class PricePredictor:
             df['pettah_dambulla_ratio'] = df['Pettah_Wholesale'] / df['Dambulla_Wholesale'].replace(0, np.nan)
         
         # Fill NaN values
-        df = df.fillna(method='bfill').fillna(method='ffill').fillna(0)
+        df = df.bfill().ffill().fillna(0)
         
         # Replace infinite values
         df = df.replace([np.inf, -np.inf], 0)
