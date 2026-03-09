@@ -182,15 +182,21 @@ class ChatbotIntentEngine:
                 try:
                     predictor = get_demand_predictor()
                     if hasattr(predictor, 'forecast_days'):
+                        import os
+                        import pandas as pd
+                        from django.conf import settings
+                        excel_path = os.path.join(settings.BASE_DIR, "data", "demand_dataset.xlsx")
+                        df = pd.read_excel(excel_path)
                         result = predictor.forecast_days(
                             product_name=crop,
                             forecast_days=7,
-                            consumption_trend='Stable'
+                            consumption_trend='Stable',
+                            excel_df=df
                         )
-                        if result and 'forecast' in result:
-                            total_demand = sum([f.get('predicted_demand', 0) for f in result['forecast']])
-                            avg_demand = total_demand / len(result['forecast'])
-                            return f"📈 **Demand Forecast for {crop}**\n\nAverage daily demand: **{avg_demand:.2f} units**\n7-day total demand: **{total_demand:.2f} units**\n\nTrend: {result.get('trend', 'Stable')}"
+                        if result and 'data' in result:
+                            total_demand = sum([f.get('demand_tonnes', 0) for f in result['data']])
+                            avg_demand = total_demand / len(result['data'])
+                            return f"📈 **Demand Forecast for {crop}**\n\nAverage daily demand: **{avg_demand:.2f} tonnes**\n7-day total demand: **{total_demand:.2f} tonnes**\n\nTrend: {result.get('consumption_trend', 'Stable')}"
                         else:
                             return f"📈 **Demand Forecast for {crop}**\n\nDemand prediction model is processing. The market shows stable demand patterns for {crop}."
                     else:
