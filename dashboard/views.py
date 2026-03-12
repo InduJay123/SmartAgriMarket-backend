@@ -11,7 +11,10 @@ class AdminDashboardStatsAPI(APIView):
     def get(self, request):
         total_farmers = FarmerDetails.objects.count()
         verified_farmers = FarmerDetails.objects.filter(is_active=True).count()
-        pending_approvals = FarmerDetails.objects.filter(is_active=False).count()
+        pending_approvals = FarmerDetails.objects.filter(
+            is_active=False,
+            user__is_active=True,
+        ).count()
         buyers = BuyerDetails.objects.count()
 
         crops = Crop.objects.count()
