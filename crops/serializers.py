@@ -4,7 +4,7 @@ from .models import Crop, Marketplace
 class CropSerializer(serializers.ModelSerializer):
     class Meta:
         model = Crop
-        fields = ['crop_id', 'crop_name', 'description','image']
+        fields = ['crop_id', 'crop_name', 'description', 'image', 'category']
 
 class MarketplaceSerializer(serializers.ModelSerializer):   
     crop_name = serializers.SerializerMethodField()
