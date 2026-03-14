@@ -1,9 +1,11 @@
 from django.contrib.auth.models import User
+from datetime import date
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from accounts.models import BuyerDetails, FarmerDetails
 from crops.models import Crop
+from prices.models import CropPrice, PriceUpload
 
 
 class AdminDashboardStatsAPITests(APITestCase):
@@ -148,3 +150,83 @@ class AdminPendingVerificationFlowTests(APITestCase):
         self.assertEqual(detail.status_code, status.HTTP_200_OK)
         self.assertEqual(detail.data["id"], self.pending_farmer_user.id)
         self.assertEqual(detail.data["profile_id"], self.pending_farmer_profile.id)
+
+
+class AdminDashboardChartsAPITests(APITestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_user(
+            username="charts_admin",
+            email="charts.admin@example.com",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+
+        self.upload = PriceUpload.objects.create(
+            original_name="prices.csv",
+            uploaded_by=self.admin_user,
+            status="PROCESSED",
+            processed_rows=2,
+            file="price_uploads/test_prices.csv",
+        )
+
+        today = date.today()
+        current_month_date = date(today.year, today.month, 1)
+
+        previous_month = today.month - 1 if today.month > 1 else 12
+        previous_year = today.year if today.month > 1 else today.year - 1
+        previous_month_date = date(previous_year, previous_month, 1)
+
+        CropPrice.objects.create(
+            crop_name="Tomato",
+            date=current_month_date,
+            price=150.00,
+            market="Dambulla",
+            unit="kg",
+            upload=self.upload,
+        )
+
+        CropPrice.objects.create(
+            crop_name="Tomato",
+            date=previous_month_date,
+            price=120.00,
+            market="Dambulla",
+            unit="kg",
+            upload=self.upload,
+        )
+
+    def _set_admin_token(self):
+        login = self.client.post(
+            "/api/auth/admin/login/",
+            {"username": "charts_admin", "password": "StrongPass123!"},
+            format="json",
+        )
+        self.assertEqual(login.status_code, status.HTTP_200_OK)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {login.data['access']}")
+
+    def test_dashboard_charts_requires_auth(self):
+        response = self.client.get("/api/auth/admin/dashboard-charts/")
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
+
+    def test_dashboard_charts_returns_realtime_series_contract(self):
+        self._set_admin_token()
+
+        response = self.client.get("/api/auth/admin/dashboard-charts/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertIn("price_trend", response.data)
+        self.assertIn("supply_by_crop", response.data)
+
+        self.assertIn("labels", response.data["price_trend"])
+        self.assertIn("values", response.data["price_trend"])
+        self.assertEqual(len(response.data["price_trend"]["labels"]), 6)
+        self.assertEqual(len(response.data["price_trend"]["values"]), 6)
+
+        # Two inserted monthly values should appear in the rolling 6-month series.
+        self.assertIn(150.0, response.data["price_trend"]["values"])
+        self.assertIn(120.0, response.data["price_trend"]["values"])
+
+        self.assertIn("labels", response.data["supply_by_crop"])
+        self.assertIn("values", response.data["supply_by_crop"])

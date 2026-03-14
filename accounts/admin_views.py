@@ -5,11 +5,17 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db import DatabaseError
+from django.db.models import Avg, Sum
+from django.db.models.functions import Coalesce, TruncMonth
+from datetime import date
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import FarmerDetails, BuyerDetails
 from .serializers_admin import FarmerAdminSerializer, BuyerAdminSerializer
 from crops.models import Crop
+from prices.models import CropPrice
+from marketplace.models import Marketplace
 
 
 def _to_bool(value):
@@ -24,6 +30,18 @@ def _to_bool(value):
     if value in (0, 1):
         return bool(value)
     return None
+
+
+def _shift_month_start(month_start: date, delta_months: int) -> date:
+    total = (month_start.year * 12 + month_start.month - 1) + delta_months
+    year = total // 12
+    month = (total % 12) + 1
+    return date(year, month, 1)
+
+
+def _rolling_month_starts(months: int = 6) -> list[date]:
+    anchor = date.today().replace(day=1)
+    return [_shift_month_start(anchor, i) for i in range(-(months - 1), 1)]
 
 
 class AdminLoginAPI(APIView):
@@ -208,6 +226,66 @@ class AdminDashboardStatsAPI(APIView):
                 "crops": crops,
                 "total_farmers": total_farmers,
             }
+        )
+
+
+class AdminDashboardChartsAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        month_starts = _rolling_month_starts(months=6)
+        start_date = month_starts[0]
+
+        price_rows = (
+            CropPrice.objects.filter(date__gte=start_date)
+            .annotate(month=TruncMonth("date"))
+            .values("month")
+            .annotate(avg_price=Avg("price"))
+            .order_by("month")
+        )
+
+        price_map = {}
+        for row in price_rows:
+            month = row["month"]
+            if month is None:
+                continue
+            month_key = month.date() if hasattr(month, "date") else month
+            price_map[month_key] = float(row["avg_price"] or 0)
+
+        price_labels = [m.strftime("%b") for m in month_starts]
+        price_values = [round(price_map.get(m, 0.0), 2) for m in month_starts]
+
+        supply_labels = []
+        supply_values = []
+        try:
+            supply_rows = (
+                Marketplace.objects.filter(status="Available")
+                .values("crop__crop_name")
+                .annotate(total_supply=Coalesce(Sum("quantity"), 0))
+                .order_by("-total_supply")[:6]
+            )
+
+            for row in supply_rows:
+                supply_labels.append(row["crop__crop_name"] or "Unknown")
+                supply_values.append(int(row["total_supply"] or 0))
+        except DatabaseError:
+            # In environments where the external market table is unavailable,
+            # return empty supply data instead of failing the whole dashboard.
+            supply_labels = []
+            supply_values = []
+
+        return Response(
+            {
+                "price_trend": {
+                    "labels": price_labels,
+                    "values": price_values,
+                },
+                "supply_by_crop": {
+                    "labels": supply_labels,
+                    "values": supply_values,
+                },
+            },
+            status=status.HTTP_200_OK,
         )
 
 
