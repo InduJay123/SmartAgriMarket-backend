@@ -30,14 +30,14 @@ class SignupSerializer(serializers.Serializer):
                 fullname=fullname,
                 contact_number=contact_number,
                 farm_name=farm_name,
-                is_active=False,  # requires admin approval before account is active
+                is_active=True,  # account is active immediately after signup
             )
         elif role == "Buyer":
             BuyerDetails.objects.create(
                 user=user,
                 fullname=fullname,
                 contact_number=contact_number,
-                is_active=False,  # requires admin approval before account is active
+                is_active=True,  # account is active immediately after signup
             )
 
         return user
