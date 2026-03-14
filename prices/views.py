@@ -1,7 +1,10 @@
 import csv
 import os
+import re
 from datetime import datetime
 from openpyxl import load_workbook
+
+import pdfplumber
 
 from rest_framework import generics, permissions, status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -73,8 +76,11 @@ class PriceUploadListCreateAPI(generics.ListCreateAPIView):
                 r = {headers[i]: row[i] for i in range(len(headers))}
                 data_rows.append(r)
 
+        elif ext == ".pdf":
+            data_rows.extend(self._extract_pdf_rows(path))
+
         else:
-            raise Exception("Only CSV and Excel files are supported")
+            raise Exception("Only CSV, Excel, and PDF files are supported")
 
         created = 0
         for r in data_rows:
@@ -88,12 +94,8 @@ class PriceUploadListCreateAPI(generics.ListCreateAPIView):
                 continue
 
             # date parsing
-            if isinstance(date_raw, datetime):
-                date_val = date_raw.date()
-            else:
-                date_val = datetime.strptime(str(date_raw).strip(), "%Y-%m-%d").date()
-
-            price_val = float(str(price_raw).strip())
+            date_val = self._parse_date(date_raw)
+            price_val = self._parse_price(price_raw)
 
             CropPrice.objects.create(
                 crop_name=crop_name,
@@ -106,3 +108,103 @@ class PriceUploadListCreateAPI(generics.ListCreateAPIView):
             created += 1
 
         return created
+
+    def _extract_pdf_rows(self, path: str) -> list[dict]:
+        data_rows = []
+        with pdfplumber.open(path) as pdf:
+            for page in pdf.pages:
+                tables = page.extract_tables() or []
+                for table in tables:
+                    table_rows = [row for row in table if row and any((cell or "").strip() for cell in row)]
+                    if len(table_rows) < 2:
+                        continue
+
+                    headers = [self._normalize_header(cell) for cell in table_rows[0]]
+                    if not {"crop_name", "date", "price"}.issubset(set(headers)):
+                        continue
+
+                    for row in table_rows[1:]:
+                        values = list(row) + [None] * (len(headers) - len(row))
+                        mapped = {headers[i]: (values[i] or "").strip() if isinstance(values[i], str) else values[i] for i in range(len(headers))}
+                        data_rows.append(mapped)
+
+                # Fallback for simple line-based PDFs (non-table extraction)
+                if not tables:
+                    text = page.extract_text() or ""
+                    for line in text.splitlines():
+                        parsed = self._parse_pdf_text_line(line)
+                        if parsed:
+                            data_rows.append(parsed)
+
+        return data_rows
+
+    def _parse_pdf_text_line(self, line: str) -> dict | None:
+        # Accept lines such as:
+        # Tomato,2026-03-12,180.50,kg,Dambulla
+        # Tomato 2026-03-12 180.50 kg Dambulla
+        line = (line or "").strip()
+        if not line:
+            return None
+
+        date_match = re.search(r"\b\d{4}-\d{2}-\d{2}\b", line)
+        price_match = re.search(r"(?<!\d)(\d+(?:\.\d{1,2})?)(?!\d)", line)
+        if not date_match or not price_match:
+            return None
+
+        date_raw = date_match.group(0)
+        price_raw = price_match.group(1)
+
+        # Crop name assumed to be before the date token.
+        crop_name = line[: date_match.start()].strip(" ,-|\t")
+        if not crop_name:
+            return None
+
+        tail = line[date_match.end():].strip(" ,-|\t")
+        unit = None
+        market = None
+
+        if tail:
+            tokens = [t for t in re.split(r"[\s,]+", tail) if t]
+            if len(tokens) >= 2:
+                unit = tokens[1] if tokens[0] == price_raw else tokens[0]
+            if len(tokens) >= 3:
+                market = " ".join(tokens[2:]) if tokens[0] == price_raw else " ".join(tokens[1:])
+
+        return {
+            "crop_name": crop_name,
+            "date": date_raw,
+            "price": price_raw,
+            "unit": unit,
+            "market": market,
+        }
+
+    def _normalize_header(self, header):
+        value = (str(header or "").strip().lower())
+        key = value.replace(" ", "_")
+
+        aliases = {
+            "crop": "crop_name",
+            "crop_name": "crop_name",
+            "date": "date",
+            "price": "price",
+            "unit": "unit",
+            "market": "market",
+        }
+        return aliases.get(key, key)
+
+    def _parse_date(self, raw_value):
+        if isinstance(raw_value, datetime):
+            return raw_value.date()
+
+        text = str(raw_value).strip()
+        for fmt in ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"]:
+            try:
+                return datetime.strptime(text, fmt).date()
+            except ValueError:
+                continue
+
+        raise ValueError(f"Unsupported date format: {text}")
+
+    def _parse_price(self, raw_value):
+        text = str(raw_value).strip().replace(",", "")
+        return float(text)

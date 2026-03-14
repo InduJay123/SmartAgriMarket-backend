@@ -30,7 +30,9 @@ SECRET_KEY = 'django-insecure-z+xkzj9fxgx^s$-7go85=e9!d*t@0#gqapuk_k2z8fo+jm-f$o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -54,6 +56,9 @@ INSTALLED_APPS = [
     'crops',
     'prices',
     'dashboard',
+    'ml_api',
+    'notifications_app',
+    'chatbot',
 ]
 
 MIDDLEWARE = [

@@ -20,17 +20,16 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
-    path('api/auth/', include('dashboard.urls')),
     path('api/marketplace/', include('marketplace.urls')),
     path('api/documents/', include('documents.urls')),
     path('api/reviews/', include('reviews.urls')),
     path("api/chat/", include("chat.urls")),
-    path("api/alerts/", include("alerts.urls")),   
+    path("api/alerts/", include("alerts.urls")),
     path("api/notifications/", include("notifications.urls")),
     path("api/crops/", include("crops.urls")),
     path("api/prices/", include("prices.urls")),
-
-
+    path('api/ml/', include('ml_api.urls')),
+    path('api/chatbot/', include('chatbot.urls')),
 ]
 
 from django.conf import settings

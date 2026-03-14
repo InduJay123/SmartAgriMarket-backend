@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('rating', models.IntegerField(blank=True, default=0, null=True)),
                 ('comment', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='marketplace.marketplace')),
+                ('product', models.ForeignKey(db_constraint=False, on_delete=django.db.models.deletion.CASCADE, related_name='reviews', to='marketplace.marketplace')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
