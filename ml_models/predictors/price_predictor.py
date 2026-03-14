@@ -93,7 +93,7 @@ class PricePredictor:
             logger.error(f"Error in auto-training price predictor: {str(e)}", exc_info=True)
             logger.info("Price predictor will operate in fallback mode")
 
-    def load_data(self, filepath: str = None) -> pd.DataFrame:
+    def load_data(self, filepath: Optional[str] = None) -> pd.DataFrame:
         """
         Load and prepare the dataset.
         
@@ -146,7 +146,8 @@ class PricePredictor:
         df['dow_cos'] = np.cos(2 * np.pi * df['day_of_week'] / 7)
         
         # Encode product as numeric
-        df['product_encoded'] = self.label_encoder.fit_transform(df['Product'])
+        encoded_vals = getattr(self.label_encoder, "fit_transform")(df['Product'])
+        df['product_encoded'] = list(encoded_vals)
         
         # Create lag features per product (previous prices)
         df = df.sort_values(['Product', 'Date'])
@@ -169,7 +170,8 @@ class PricePredictor:
         
         # Market relationship features (if available)
         if 'Dambulla_Wholesale' in df.columns:
-            df['pettah_dambulla_ratio'] = df['Pettah_Wholesale'] / df['Dambulla_Wholesale'].replace(0, np.nan)
+            ratio_series = df['Pettah_Wholesale'] / df['Dambulla_Wholesale'].replace(0, np.nan)
+            df['pettah_dambulla_ratio'] = ratio_series.astype(float)
         
         # Fill NaN values
         df = df.bfill().ffill().fillna(0)
@@ -220,13 +222,13 @@ class PricePredictor:
         
         logger.info(f"Training set: {len(X_train)}, Test set: {len(X_test)}")
         
-        return X_train, X_test, y_train, y_test
+        return np.asarray(X_train), np.asarray(X_test), np.asarray(y_train), np.asarray(y_test)
 
     def train(
         self, 
-        X_train: np.ndarray = None, 
-        y_train: np.ndarray = None,
-        filepath: str = None,
+        X_train: Optional[np.ndarray] = None, 
+        y_train: Optional[np.ndarray] = None,
+        filepath: Optional[str] = None,
         target_column: str = 'Pettah_Wholesale',
         n_estimators: int = 15,
         max_depth: int = 4,
@@ -333,7 +335,7 @@ class PricePredictor:
         Returns:
             Predicted price
         """
-        if not self.is_trained:
+        if not self.is_trained or self.model is None:
             logger.warning("Model not trained. Please train the model first.")
             return 0.0
 
@@ -357,7 +359,7 @@ class PricePredictor:
         Returns:
             Array of predictions
         """
-        if not self.is_trained:
+        if not self.is_trained or self.model is None:
             logger.warning("Model not trained.")
             return np.array([])
         
@@ -487,7 +489,8 @@ class PricePredictor:
                     break
             
             if matched_product:
-                product_encoded = self.label_encoder.transform([matched_product])[0]
+                encoded_array = getattr(self.label_encoder, "transform")([matched_product])
+                product_encoded = int(encoded_array[0])
             else:
                 raise ValueError(f"Product '{product}' not found")
         except ValueError:
@@ -537,7 +540,7 @@ class PricePredictor:
         self, 
         product: str, 
         days_ahead: int = 7,
-        start_date: datetime = None
+        start_date: Optional[datetime] = None
     ) -> List[Dict]:
         """
         Predict prices for upcoming days.
@@ -591,7 +594,7 @@ class PricePredictor:
         Returns:
             Dictionary of feature names and importance scores
         """
-        if not self.is_trained:
+        if not self.is_trained or self.model is None:
             return {}
         
         importance = dict(zip(self.feature_columns, self.model.feature_importances_))
