@@ -121,7 +121,10 @@ class FloodPredictor:
         if 'monthly_rainfall_mm' in features_df.columns:
             rain = pd.to_numeric(features_df['monthly_rainfall_mm'], errors='coerce').fillna(0)
             rain_7d = pd.to_numeric(features_df.get('rainfall_7d_mm', rain * 0.25), errors='coerce').fillna(0)
-            hist = pd.to_numeric(features_df.get('historical_flood_count', 0), errors='coerce').fillna(0)
+            
+            if 'historical_flood_count' not in features_df.columns:
+                features_df['historical_flood_count'] = 0
+            hist = pd.to_numeric(features_df['historical_flood_count'], errors='coerce').fillna(0)
             
             # Synthesize score 0-100 based on rain severity + history
             # Calibrated dynamically around model mean: 33.2
