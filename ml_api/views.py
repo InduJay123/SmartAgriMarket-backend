@@ -112,15 +112,15 @@ def yield_predict(request):
 
     try:
         predictor = get_yield_predictor()
-        features = serializer.validated_data
+        features: dict = serializer.validated_data  # type: ignore
         prediction = predictor.predict(features)
 
-        accuracy = predictor.get_accuracy() if hasattr(predictor, "get_accuracy") else {}
+        accuracy = getattr(predictor, "get_accuracy", lambda: {})()
 
         try:
             PredictionHistory.objects.create(
                 prediction_type="yield",
-                crop_name=features["crop_type"],
+                crop_name=features.get("crop_type", "Unknown"),
                 input_features=features,
                 predicted_value=prediction,
             )
@@ -130,7 +130,7 @@ def yield_predict(request):
         return Response(
             {
                 "prediction_type": "yield",
-                "crop_type": features["crop_type"],
+                "crop_type": features.get("crop_type", "Unknown"),
                 "predicted_yield": prediction,
                 "unit": "kg/hectare",
                 "confidence": accuracy.get("r2", accuracy.get("r2_score", 0.88)),
@@ -155,16 +155,16 @@ def price_predict(request):
 
     try:
         predictor = get_price_predictor()
-        features = serializer.validated_data
+        features: dict = serializer.validated_data # type: ignore
 
-        crop_type = features["crop_type"]
+        crop_type = features.get("crop_type", "Unknown")
         prediction_features = {
             "product": crop_type,
             "date": features.get("date", timezone.now()),
         }
 
         prediction = predictor.predict(prediction_features)
-        accuracy = predictor.get_accuracy() if hasattr(predictor, "get_accuracy") else {}
+        accuracy = getattr(predictor, "get_accuracy", lambda: {})()
 
         try:
             PredictionHistory.objects.create(
@@ -287,13 +287,14 @@ def demand_predict(request):
 
     try:
         predictor = get_demand_predictor()
-        features = serializer.validated_data
-        crop_type = features.get("crop_type")
+        features: dict = serializer.validated_data # type: ignore
+        crop_type = str(features.get("crop_type", ""))
 
         # If your predictor still supports predict(), use it
         if hasattr(predictor, "predict"):
-            prediction = predictor.predict(features)
-            accuracy = predictor.get_accuracy() if hasattr(predictor, "get_accuracy") else {}
+            predict_fn = getattr(predictor, "predict")
+            prediction = predict_fn(features)
+            accuracy = getattr(predictor, "get_accuracy", lambda: {})()
 
             return Response(
                 {
@@ -453,7 +454,7 @@ def prediction_explain(request):
         else:
             return Response({"error": "Invalid prediction type"}, status=status.HTTP_400_BAD_REQUEST)
 
-        accuracy_data = predictor.get_accuracy() if hasattr(predictor, "get_accuracy") else {}
+        accuracy_data = getattr(predictor, "get_accuracy", lambda: {})()
         model_accuracy = accuracy_data.get("r2_score", 0.0)
 
         explanation = {
