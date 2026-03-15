@@ -195,9 +195,9 @@ def price_predict(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# ---------------------------
-# ✅ NEW: Demand Forecast API
-# ---------------------------
+
+# NEW: Demand Forecast API
+
 @api_view(["POST"])
 def demand_forecast(request):
     """
