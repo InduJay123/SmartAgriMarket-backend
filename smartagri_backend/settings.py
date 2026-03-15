@@ -141,6 +141,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'URL_FORMAT_OVERRIDE': None,
 }
 
 SIMPLE_JWT = {

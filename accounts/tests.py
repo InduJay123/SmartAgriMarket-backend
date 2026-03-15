@@ -1,10 +1,17 @@
 from django.contrib.auth.models import User
-from datetime import date
+from datetime import date, timedelta
+import csv
+from io import StringIO
+
+from django.db import connection
+from django.utils import timezone
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 
 from accounts.models import BuyerDetails, FarmerDetails
 from crops.models import Crop
+from marketplace.models import Marketplace
+from ml_api.models import PredictionHistory
 from prices.models import CropPrice, PriceUpload
 
 
@@ -230,3 +237,258 @@ class AdminDashboardChartsAPITests(APITestCase):
 
         self.assertIn("labels", response.data["supply_by_crop"])
         self.assertIn("values", response.data["supply_by_crop"])
+
+
+class AdminReportsAPITests(APITransactionTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._ensure_market_table()
+
+    @classmethod
+    def _ensure_market_table(cls):
+        table_name = Marketplace._meta.db_table
+        required_columns = {
+            "market_id",
+            "farmer_id",
+            "crop_id",
+            "price",
+            "quantity",
+            "status",
+            "created_at",
+            "updated_at",
+        }
+
+        with connection.cursor() as cursor:
+            table_names = connection.introspection.table_names(cursor)
+            recreate_table = table_name not in table_names
+
+            if not recreate_table:
+                existing_columns = {
+                    column.name
+                    for column in connection.introspection.get_table_description(cursor, table_name)
+                }
+                recreate_table = not required_columns.issubset(existing_columns)
+
+        if not recreate_table:
+            return
+
+        with connection.cursor() as cursor:
+            if connection.vendor == "mysql":
+                cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+                cursor.execute(f"DROP TABLE IF EXISTS `{table_name}`")
+                cursor.execute(
+                    f"""
+                    CREATE TABLE `{table_name}` (
+                        `market_id` integer AUTO_INCREMENT PRIMARY KEY,
+                        `farmer_id` integer NOT NULL,
+                        `crop_id` bigint NOT NULL,
+                        `price` decimal(10, 2) NOT NULL,
+                        `unit` varchar(20) NOT NULL,
+                        `predicted_date` date NOT NULL,
+                        `quantity` integer NOT NULL,
+                        `additional_details` varchar(255) NULL,
+                        `farming_method` varchar(100) NOT NULL,
+                        `farming_season` varchar(100) NOT NULL,
+                        `region` varchar(255) NOT NULL,
+                        `district` varchar(255) NOT NULL,
+                        `image` longtext NULL,
+                        `status` varchar(20) NOT NULL,
+                        `created_at` datetime(6) NOT NULL,
+                        `updated_at` datetime(6) NOT NULL
+                    )
+                    """
+                )
+                cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+                return
+
+            cursor.execute(f'DROP TABLE IF EXISTS "{table_name}"')
+            cursor.execute(
+                f'''
+                CREATE TABLE "{table_name}" (
+                    "market_id" integer PRIMARY KEY AUTOINCREMENT,
+                    "farmer_id" integer NOT NULL,
+                    "crop_id" bigint NOT NULL,
+                    "price" decimal(10, 2) NOT NULL,
+                    "unit" varchar(20) NOT NULL,
+                    "predicted_date" date NOT NULL,
+                    "quantity" integer NOT NULL,
+                    "additional_details" varchar(255) NULL,
+                    "farming_method" varchar(100) NOT NULL,
+                    "farming_season" varchar(100) NOT NULL,
+                    "region" varchar(255) NOT NULL,
+                    "district" varchar(255) NOT NULL,
+                    "image" text NULL,
+                    "status" varchar(20) NOT NULL,
+                    "created_at" datetime NOT NULL,
+                    "updated_at" datetime NOT NULL
+                )
+                '''
+            )
+
+    def setUp(self):
+        self.admin_user = User.objects.create_user(
+            username="reports_admin",
+            email="reports.admin@example.com",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.standard_user = User.objects.create_user(
+            username="regular_user",
+            email="regular@example.com",
+            password="StrongPass123!",
+        )
+
+        self.tomato = Crop.objects.create(crop_name="Tomato", category="Vegetable")
+        self.carrot = Crop.objects.create(crop_name="Carrot", category="Vegetable")
+
+        now = timezone.now()
+        Marketplace.objects.create(
+            farmer_id=101,
+            crop_id=self.tomato.pk,
+            price="250.00",
+            unit="kg",
+            predicted_date=now.date(),
+            quantity=10,
+            additional_details="First sold listing",
+            farming_method="Organic",
+            farming_season="Yala",
+            region="Northern",
+            district="Jaffna",
+            status="Sold",
+            created_at=now - timedelta(days=2),
+            updated_at=now - timedelta(days=2),
+        )
+        Marketplace.objects.create(
+            farmer_id=102,
+            crop_id=self.carrot.pk,
+            price="180.00",
+            unit="kg",
+            predicted_date=now.date(),
+            quantity=4,
+            additional_details="Unsold listing",
+            farming_method="Conventional",
+            farming_season="Maha",
+            region="Central",
+            district="Kandy",
+            status="Available",
+            created_at=now - timedelta(days=1),
+            updated_at=now - timedelta(days=1),
+        )
+
+        PredictionHistory.objects.create(
+            prediction_type="price",
+            crop_name="Tomato",
+            input_features={"source": "unit-test"},
+            predicted_value=265.5,
+            confidence=0.81,
+        )
+        PredictionHistory.objects.create(
+            prediction_type="price",
+            crop_name="Carrot",
+            input_features={"source": "unit-test"},
+            predicted_value=190.0,
+            confidence=0.72,
+        )
+
+    def _admin_access_token(self):
+        response = self.client.post(
+            "/api/auth/admin/login/",
+            {"username": "reports_admin", "password": "StrongPass123!"},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        return response.data["access"]
+
+    def _parse_csv(self, response):
+        return list(csv.DictReader(StringIO(response.content.decode("utf-8"))))
+
+    def test_transactions_report_requires_admin_auth(self):
+        response = self.client.get("/api/auth/admin/reports/transactions/")
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
+
+    def test_transactions_report_forbids_authenticated_non_admin_user(self):
+        self.client.force_authenticate(user=self.standard_user)
+
+        response = self.client.get("/api/auth/admin/reports/transactions/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_transactions_report_returns_filtered_csv(self):
+        token = self._admin_access_token()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        today = timezone.localdate().isoformat()
+        start = (timezone.localdate() - timedelta(days=5)).isoformat()
+        response = self.client.get(
+            f"/api/auth/admin/reports/transactions/?startDate={start}&endDate={today}"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "text/csv")
+        self.assertIn("attachment; filename=", response["Content-Disposition"])
+
+        body = response.content.decode("utf-8")
+        self.assertIn("sold_at,market_id,crop,farmer_id,region,district", body)
+        self.assertIn("estimated_total_value", body)
+
+    def test_transactions_report_returns_pdf_when_requested(self):
+        token = self._admin_access_token()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        today = timezone.localdate().isoformat()
+        start = (timezone.localdate() - timedelta(days=5)).isoformat()
+        response = self.client.get(
+            f"/api/auth/admin/reports/transactions/?startDate={start}&endDate={today}&format=pdf"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "application/pdf")
+        self.assertIn("attachment; filename=", response["Content-Disposition"])
+        self.assertIn(".pdf", response["Content-Disposition"])
+        self.assertTrue(response.content.startswith(b"%PDF-"))
+
+    def test_transactions_report_rejects_invalid_date_range(self):
+        token = self._admin_access_token()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.get(
+            "/api/auth/admin/reports/transactions/?startDate=2026-03-15&endDate=2026-03-01"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data["error"],
+            "Start date must be earlier than or equal to the end date.",
+        )
+
+    def test_combined_market_report_returns_joined_csv(self):
+        token = self._admin_access_token()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        today = timezone.localdate().isoformat()
+        start = (timezone.localdate() - timedelta(days=5)).isoformat()
+        response = self.client.get(
+            f"/api/auth/admin/reports/combined-market/?startDate={start}&endDate={today}"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response["Content-Type"], "text/csv")
+
+        body = response.content.decode("utf-8")
+        self.assertIn("crop,report_start_date,report_end_date,sold_listing_count", body)
+        self.assertIn("ml_avg_predicted_price", body)
+        self.assertIn("latest_ml_prediction_at", body)
+
+    def test_combined_market_report_rejects_unsupported_format(self):
+        token = self._admin_access_token()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {token}")
+
+        response = self.client.get("/api/auth/admin/reports/combined-market/?format=xlsx")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["detail"], "Unsupported format")
+
