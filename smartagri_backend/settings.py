@@ -30,7 +30,9 @@ SECRET_KEY = 'django-insecure-z+xkzj9fxgx^s$-7go85=e9!d*t@0#gqapuk_k2z8fo+jm-f$o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -111,7 +114,6 @@ DATABASES = {
         'PORT': '3306'
     }
 }
-
 
 
 # Password validation
@@ -166,42 +168,11 @@ STATIC_URL = 'static/'
 
 # CORS
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:5173",    # React frontend
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
-    "http://localhost:5178",
-    "http://127.0.0.1:5177",
-]
-
-# Allow all origins in development (easier for testing)
-CORS_ALLOW_ALL_ORIGINS = True
-
-# REST Framework settings - disable CSRF for API
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-}
-
-
-
-MIDDLEWARE = ["corsheaders.middleware.CorsMiddleware", *MIDDLEWARE]
-
-CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React frontend
     "http://localhost:5173",
-    "http://127.0.0.1:5173",
 ]
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# File upload settings
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (default is 2.5MB)
-FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (default is 2.5MB)

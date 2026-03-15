@@ -5,19 +5,19 @@ class IsActiveFarmer(BasePermission):
     message = "Farmer not activate by admin yet."
 
     def has_permission(self, request, view):
-        return FarmerDetails.objects.filter(user=request.user, is_active=True).exists()
+        # Farmers are active immediately after signup, no admin approval needed
+        return True
 
 class IsActiveBuyer(BasePermission):
     message = "Buyer not activate by admin yet."
 
     def has_permission(self, request, view):
-        return BuyerDetails.objects.filter(user=request.user, is_active=True).exists()
+        # Buyers are active immediately after signup, no admin approval needed
+        return True
 
 class IsActiveUser(BasePermission):
     message = "Account not activate by admin yet."
 
     def has_permission(self, request, view):
-        return (
-            FarmerDetails.objects.filter(user=request.user, is_active=True).exists()
-            or BuyerDetails.objects.filter(user=request.user, is_active=True).exists()
-        )
+        # Users are active immediately after signup, no admin approval needed
+        return True

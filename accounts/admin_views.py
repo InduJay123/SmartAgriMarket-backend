@@ -1,48 +1,177 @@
-from asyncio.log import logger
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework import status
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db import DatabaseError
+from django.db.models import Avg, Sum
+from django.db.models.functions import Coalesce, TruncMonth
+from datetime import date
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import FarmerDetails, BuyerDetails
 from .serializers_admin import FarmerAdminSerializer, BuyerAdminSerializer
+from crops.models import Crop
+from prices.models import CropPrice
+from marketplace.models import Marketplace
+
+
+def _to_bool(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "y", "on"}:
+            return True
+        if normalized in {"false", "0", "no", "n", "off", ""}:
+            return False
+    if value in (0, 1):
+        return bool(value)
+    return None
+
+
+def _shift_month_start(month_start: date, delta_months: int) -> date:
+    total = (month_start.year * 12 + month_start.month - 1) + delta_months
+    year = total // 12
+    month = (total % 12) + 1
+    return date(year, month, 1)
+
+
+def _rolling_month_starts(months: int = 6) -> list[date]:
+    anchor = date.today().replace(day=1)
+    return [_shift_month_start(anchor, i) for i in range(-(months - 1), 1)]
+
+
+class AdminLoginAPI(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+
+        if not username or not password:
+            return Response(
+                {"error": "Username and password are required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not (user.is_staff or user.is_superuser):
+            return Response({"error": "Not an admin account"}, status=status.HTTP_403_FORBIDDEN)
+
+        refresh = RefreshToken.for_user(user)
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "role": "Admin",
+                },
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class AdminFarmersListAPI(APIView):
+    """
+    GET /api/auth/admin/farmers/
+    Optional query param: ?status=pending|active|rejected  (default: all)
+
+    pending  — registered, awaiting review  (profile.is_active=False, user.is_active=True)
+    active   — approved by admin            (profile.is_active=True)
+    rejected — rejected by admin            (profile.is_active=False, user.is_active=False)
+    """
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        farmers = FarmerDetails.objects.select_related("user").all().order_by("-id")
-        serializer = FarmerAdminSerializer(farmers, many=True)    
+        status_param = request.query_params.get("status", "all")
+        qs = FarmerDetails.objects.select_related("user").order_by("-id")
+
+        if status_param == "pending":
+            qs = qs.filter(is_active=False, user__is_active=True)
+        elif status_param == "active":
+            qs = qs.filter(is_active=True)
+        elif status_param == "rejected":
+            qs = qs.filter(is_active=False, user__is_active=False)
+
+        serializer = FarmerAdminSerializer(qs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class AdminBuyersListAPI(APIView):
+    """
+    GET /api/auth/admin/buyers/
+    Optional query param: ?status=pending|active|rejected  (default: all)
+    """
     permission_classes = [IsAdminUser]
 
-    
     def get(self, request):
-        buyers = BuyerDetails.objects.select_related("user").all().order_by("-id")
-        serializer = BuyerAdminSerializer(buyers, many=True)
+        status_param = request.query_params.get("status", "all")
+        qs = BuyerDetails.objects.select_related("user").order_by("-id")
+
+        if status_param == "pending":
+            qs = qs.filter(is_active=False, user__is_active=True)
+        elif status_param == "active":
+            qs = qs.filter(is_active=True)
+        elif status_param == "rejected":
+            qs = qs.filter(is_active=False, user__is_active=False)
+
+        serializer = BuyerAdminSerializer(qs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class AdminPendingUsersAPI(APIView):
+    """
+    GET /api/auth/admin/pending-users/
+    Returns all farmers and buyers who registered but have not yet been approved or rejected.
+    pending = profile.is_active=False AND user.is_active=True
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        pending_farmers = FarmerDetails.objects.filter(
+            is_active=False, user__is_active=True
+        ).select_related("user").order_by("-id")
+
+        pending_buyers = BuyerDetails.objects.filter(
+            is_active=False, user__is_active=True
+        ).select_related("user").order_by("-id")
+
+        return Response(
+            {
+                "farmers": FarmerAdminSerializer(pending_farmers, many=True).data,
+                "buyers": BuyerAdminSerializer(pending_buyers, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class AdminVerifyUserAPI(APIView):
+    """
+    PATCH /api/auth/admin/verify/
+    Body: { "role": "Farmer"|"Buyer", "user_id": <int>, "is_active": true|false }
+
+    Approve (is_active=true):  profile.is_active=True,  user.is_active=True
+    Reject  (is_active=false): profile.is_active=False, user.is_active=False
+    This lets the pending list distinguish between "not yet reviewed" and "rejected".
+    """
     permission_classes = [IsAdminUser]
 
     def patch(self, request):
-        # logger.warning("==== VERIFY HIT ====")
-        # logger.warning("content_type=%s", request.content_type)
-        # logger.warning("data=%s", request.data)
-        # return Response({"ok": True, "data": request.data}, status=200)
-
-
         role = request.data.get("role")
         user_id = request.data.get("user_id")
         is_active = request.data.get("is_active")
 
-        if not role or not user_id:
+        if not role or user_id is None:
             return Response({"error": "role and user_id are required"}, status=400)
 
         role_normalized = str(role).strip().lower()
@@ -54,109 +183,125 @@ class AdminVerifyUserAPI(APIView):
         else:
             return Response({"error": "role must be Farmer or Buyer"}, status=400)
 
-        profile = model.objects.filter(user_id=user_id).first()
+        profile = model.objects.filter(user_id=user_id).select_related("user").first()
         if not profile:
             return Response({"error": "Profile not found"}, status=404)
 
-        profile.is_active = bool(is_active)
-        profile.deactivate_at = timezone.now() if not profile.is_active else None
+        approved = _to_bool(is_active)
+        if approved is None:
+            return Response({"error": "is_active must be true or false"}, status=400)
+
+        # Update profile status
+        profile.is_active = approved
+        profile.deactivate_at = None if approved else timezone.now()
         profile.save()
 
-       
+        # Sync Django User.is_active so the pending filter works correctly:
+        #   approved  → user can log in (user.is_active=True)
+        #   rejected  → user cannot log in (user.is_active=False)
+        profile.user.is_active = approved
+        profile.user.save(update_fields=["is_active"])
+
         return Response({"message": "Updated", "is_active": profile.is_active})
 
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
-
-from django.contrib.auth import authenticate
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
-
-class AdminLoginAPI(APIView):
-    permission_classes = [AllowAny]
-    authentication_classes = [] 
-
-    def post(self, request):
-        username = request.data.get("username")
-        password = request.data.get("password")
-
-        if not username or not password:
-            return Response(
-                {"error": "Username and password are required"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        user = authenticate(username=username, password=password)
-        if not user:
-            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
-
-        # ✅ Only allow superusers/staff as admin
-        if not (user.is_staff or user.is_superuser):
-            return Response({"error": "Not an admin account"}, status=status.HTTP_403_FORBIDDEN)
-
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-            "user": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "role": "Admin"
-            }
-        }, status=status.HTTP_200_OK)
-
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
-
-from .models import FarmerDetails, BuyerDetails
-from crops.models import Crop  # your Crop model uses db_table='crops'
 
 class AdminDashboardStatsAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
         total_farmers = FarmerDetails.objects.count()
-
         verified_farmers = FarmerDetails.objects.filter(is_active=True).count()
-        pending_approvals = FarmerDetails.objects.filter(is_active=False).count()
-
+        # pending = registered but not yet reviewed (excludes rejected users)
+        pending_approvals = FarmerDetails.objects.filter(
+            is_active=False, user__is_active=True
+        ).count()
         buyers = BuyerDetails.objects.count()
         crops = Crop.objects.count()
 
-        return Response({
-            "verified_farmers": verified_farmers,
-            "pending_approvals": pending_approvals,
-            "buyers": buyers,
-            "crops": crops,
-            "total_farmers": total_farmers,
-        })
+        return Response(
+            {
+                "verified_farmers": verified_farmers,
+                "pending_approvals": pending_approvals,
+                "buyers": buyers,
+                "crops": crops,
+                "total_farmers": total_farmers,
+            }
+        )
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
 
-from .models import FarmerDetails, BuyerDetails
+class AdminDashboardChartsAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        month_starts = _rolling_month_starts(months=6)
+        start_date = month_starts[0]
+
+        price_rows = (
+            CropPrice.objects.filter(date__gte=start_date)
+            .annotate(month=TruncMonth("date"))
+            .values("month")
+            .annotate(avg_price=Avg("price"))
+            .order_by("month")
+        )
+
+        price_map = {}
+        for row in price_rows:
+            month = row["month"]
+            if month is None:
+                continue
+            month_key = month.date() if hasattr(month, "date") else month
+            price_map[month_key] = float(row["avg_price"] or 0)
+
+        price_labels = [m.strftime("%b") for m in month_starts]
+        price_values = [round(price_map.get(m, 0.0), 2) for m in month_starts]
+
+        supply_labels = []
+        supply_values = []
+        try:
+            supply_rows = (
+                Marketplace.objects.filter(status="Available")
+                .values("crop__crop_name")
+                .annotate(total_supply=Coalesce(Sum("quantity"), 0))
+                .order_by("-total_supply")[:6]
+            )
+
+            for row in supply_rows:
+                supply_labels.append(row["crop__crop_name"] or "Unknown")
+                supply_values.append(int(row["total_supply"] or 0))
+        except DatabaseError:
+            # In environments where the external market table is unavailable,
+            # return empty supply data instead of failing the whole dashboard.
+            supply_labels = []
+            supply_values = []
+
+        return Response(
+            {
+                "price_trend": {
+                    "labels": price_labels,
+                    "values": price_values,
+                },
+                "supply_by_crop": {
+                    "labels": supply_labels,
+                    "values": supply_values,
+                },
+            },
+            status=status.HTTP_200_OK,
+        )
+
 
 class AdminUserDetailAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, user_id):
+        # Frontend currently sends list item `id` from admin lists.
+        # Accept both user_id and profile PK to keep the existing button behavior working.
         farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
+        if not farmer:
+            farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
         if farmer:
             return Response({
                 "id": farmer.user_id,
+                "profile_id": farmer.id,
                 "role": "Farmer",
                 "email": farmer.user.email,
                 "username": farmer.user.username,
@@ -166,13 +311,17 @@ class AdminUserDetailAPI(APIView):
                 "farm_name": farmer.farm_name,
                 "address": farmer.address,
                 "about": farmer.about,
+                "profile_image": farmer.profile_image,
                 "is_active": farmer.is_active,
             })
 
         buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
+        if not buyer:
+            buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
         if buyer:
             return Response({
                 "id": buyer.user_id,
+                "profile_id": buyer.id,
                 "role": "Buyer",
                 "email": buyer.user.email,
                 "username": buyer.user.username,
@@ -183,6 +332,7 @@ class AdminUserDetailAPI(APIView):
                 "company_phone": buyer.company_phone,
                 "address": buyer.address,
                 "city": buyer.city,
+                "profile_image": buyer.profile_image,
                 "is_active": buyer.is_active,
             })
 

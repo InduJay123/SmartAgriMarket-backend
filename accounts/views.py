@@ -54,10 +54,12 @@ class LoginAPI(APIView):
         if not user:
             return Response({"error": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if role == "Farmer" and not hasattr(user, 'farmerdetails'):
-            return Response({"error": "User is not a farmer"}, status=status.HTTP_400_BAD_REQUEST)
-        if role == "Buyer" and not hasattr(user, 'buyerdetails'):
-            return Response({"error": "User is not a buyer"}, status=status.HTTP_400_BAD_REQUEST)
+        if role == "Farmer":
+            if not hasattr(user, 'farmerdetails'):
+                return Response({"error": "User is not a farmer"}, status=status.HTTP_400_BAD_REQUEST)
+        if role == "Buyer":
+            if not hasattr(user, 'buyerdetails'):
+                return Response({"error": "User is not a buyer"}, status=status.HTTP_400_BAD_REQUEST)
 
         refresh = RefreshToken.for_user(user)
         return Response({
