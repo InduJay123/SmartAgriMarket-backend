@@ -1,7 +1,6 @@
-"""
+﻿"""
 URLs for ML API.
 """
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
@@ -12,9 +11,12 @@ from .views import (
     price_predict,
     price_forecast,
     demand_predict,
-    demand_forecast,       # ✅ NEW
+    demand_forecast,
     prediction_explain,
 )
+from . import views
+
+app_name = 'ml_api'
 
 router = DefaultRouter()
 router.register(r"history", PredictionHistoryViewSet, basename="prediction-history")
@@ -25,12 +27,13 @@ urlpatterns = [
     path("predict/yield/", yield_predict, name="yield-predict"),
     path("yield/forecast/", yield_forecast, name="yield-forecast"),
     path("predict/price/", price_predict, name="price-predict"),
-
-    # ✅ Demand endpoints
-    path("demand/forecast/", demand_forecast, name="demand-forecast"),  # <--- frontend should call this
-    path("predict/demand/", demand_predict, name="demand-predict"),      # keep old if needed
-
+    path("demand/forecast/", demand_forecast, name="demand-forecast"),
+    path("predict/demand/", demand_predict, name="demand-predict"),
     path("explain/", prediction_explain, name="prediction-explain"),
-
     path("price/forecast/", price_forecast, name="price-forecast"),
+    path('health/', views.health_check, name='health_check'),
+    path('flood/predict/', views.FloodPredictionView.as_view(), name='flood_predict'),
+    path('flood/predict/batch/', views.BatchFloodPredictionView.as_view(), name='flood_predict_batch'),
+    path('flood/model-info/', views.ModelInfoView.as_view(), name='model_info'),
+    path('flood/feature-importance/', views.FeatureImportanceView.as_view(), name='feature_importance'),
 ]

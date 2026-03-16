@@ -17,3 +17,12 @@ class MlApiConfig(AppConfig):
         import logging
         logger = logging.getLogger(__name__)
         logger.info("ML API app is ready")
+
+
+from django.apps import AppConfig
+
+
+class MlApiConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'ml_api'
+    verbose_name = 'Machine Learning API'

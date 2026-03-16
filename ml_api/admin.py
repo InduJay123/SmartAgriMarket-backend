@@ -24,3 +24,9 @@ class ModelMetadataAdmin(admin.ModelAdmin):
     list_filter = ['is_active', 'model_type']
     search_fields = ['model_type']
     readonly_fields = ['created_at', 'updated_at']
+
+
+from django.contrib import admin
+
+# Register your models here.
+# No models to register for ml_api as it uses ML models, not Django models.
