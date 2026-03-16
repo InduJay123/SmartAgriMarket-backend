@@ -17,8 +17,8 @@ from django.db.models.functions import Coalesce, TruncMonth
 from datetime import date
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import FarmerDetails, BuyerDetails
-from .serializers_admin import FarmerAdminSerializer, BuyerAdminSerializer
+from .models import ActivityLog, FarmerDetails, BuyerDetails
+from .serializers_admin import ActivityLogSerializer, FarmerAdminSerializer, BuyerAdminSerializer
 from crops.models import Crop
 from ml_api.models import PredictionHistory
 from prices.models import CropPrice
@@ -225,6 +225,20 @@ def _float_to_string(value):
     return f"{float(value):.2f}"
 
 
+def _log_activity(*, user, action_type, module, message, metadata=None):
+    try:
+        ActivityLog.objects.create(
+            actor=user,
+            actor_username=user.username if user else "",
+            action_type=action_type,
+            module=module,
+            message=message,
+            metadata=metadata or {},
+        )
+    except DatabaseError:
+        return
+
+
 def _to_bool(value):
     if isinstance(value, bool):
         return value
@@ -273,6 +287,13 @@ class AdminLoginAPI(APIView):
             return Response({"error": "Not an admin account"}, status=status.HTTP_403_FORBIDDEN)
 
         refresh = RefreshToken.for_user(user)
+        _log_activity(
+            user=user,
+            action_type=ActivityLog.ActionType.ADMIN_LOGIN_SUCCESS,
+            module="accounts",
+            message="Admin logged in successfully",
+            metadata={"user_id": user.id},
+        )
         return Response(
             {
                 "refresh": str(refresh),
@@ -409,6 +430,26 @@ class AdminVerifyUserAPI(APIView):
         profile.user.is_active = approved
         profile.user.save(update_fields=["is_active"])
 
+        action_type = (
+            ActivityLog.ActionType.USER_APPROVED
+            if approved
+            else ActivityLog.ActionType.USER_REJECTED
+        )
+        role_label = "Farmer" if model is FarmerDetails else "Buyer"
+        display_name = profile.fullname or profile.user.username
+        _log_activity(
+            user=request.user,
+            action_type=action_type,
+            module="accounts",
+            message=f"{role_label} {display_name} was {'approved' if approved else 'rejected'}",
+            metadata={
+                "target_user_id": profile.user_id,
+                "target_profile_id": profile.id,
+                "target_role": role_label,
+                "is_active": approved,
+            },
+        )
+
         return Response({"message": "Updated", "is_active": profile.is_active})
 
 
@@ -416,6 +457,14 @@ class AdminDashboardStatsAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
+        _log_activity(
+            user=request.user,
+            action_type=ActivityLog.ActionType.DASHBOARD_VIEWED,
+            module="dashboard",
+            message="Viewed admin dashboard overview",
+            metadata={},
+        )
+
         total_farmers = FarmerDetails.objects.count()
         verified_farmers = FarmerDetails.objects.filter(is_active=True).count()
         # pending = registered but not yet reviewed (excludes rejected users)
@@ -554,6 +603,20 @@ class AdminTransactionReportAPI(APIView):
             "status",
             "predicted_date",
         ]
+
+        _log_activity(
+            user=request.user,
+            action_type=ActivityLog.ActionType.TRANSACTIONS_REPORT_GENERATED,
+            module="reports",
+            message="Generated market transactions report",
+            metadata={
+                "format": report_format,
+                "crop": filters["crop"],
+                "start_date": filters["start_date"].isoformat() if filters["start_date"] else None,
+                "end_date": filters["end_date"].isoformat() if filters["end_date"] else None,
+                "row_count": len(rows),
+            },
+        )
 
         if report_format == "pdf":
             return _pdf_response(
@@ -695,6 +758,20 @@ class AdminCombinedMarketReportAPI(APIView):
             "latest_ml_prediction_at",
         ]
 
+        _log_activity(
+            user=request.user,
+            action_type=ActivityLog.ActionType.COMBINED_REPORT_GENERATED,
+            module="reports",
+            message="Generated combined market report",
+            metadata={
+                "format": report_format,
+                "crop": filters["crop"],
+                "start_date": filters["start_date"].isoformat() if filters["start_date"] else None,
+                "end_date": filters["end_date"].isoformat() if filters["end_date"] else None,
+                "row_count": len(rows),
+            },
+        )
+
         if report_format == "pdf":
             return _pdf_response(
                 _build_report_filename("combined-market-report", filters, extension="pdf"),
@@ -758,4 +835,29 @@ class AdminUserDetailAPI(APIView):
             })
 
         return Response({"error": "Profile not found"}, status=404)
+
+
+class AdminActivityLogAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        limit_value = request.query_params.get("limit", "50")
+
+        try:
+            limit = int(limit_value)
+        except (TypeError, ValueError):
+            return Response({"error": "limit must be an integer"}, status=400)
+
+        if limit < 1 or limit > 100:
+            return Response({"error": "limit must be between 1 and 100"}, status=400)
+
+        queryset = ActivityLog.objects.select_related("actor").all()[:limit]
+        serializer = ActivityLogSerializer(queryset, many=True)
+        return Response(
+            {
+                "results": serializer.data,
+                "count": len(serializer.data),
+            },
+            status=status.HTTP_200_OK,
+        )
 
