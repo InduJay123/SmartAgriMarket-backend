@@ -17,6 +17,30 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# Try to import swagger/OpenAPI documentation
+try:
+    from rest_framework import permissions
+    from drf_yasg.views import get_schema_view
+    from drf_yasg import openapi
+    
+    # Swagger/OpenAPI schema configuration
+    schema_view = get_schema_view(
+        openapi.Info(
+            title="SmartAgriMarket ML API",
+            default_version='v1',
+            description="Machine Learning API for flood prediction and agricultural insights",
+            terms_of_service="https://www.smartagrimarket.com/terms/",
+            contact=openapi.Contact(email="support@smartagrimarket.com"),
+            license=openapi.License(name="MIT License"),
+        ),
+        public=True,
+        permission_classes=(permissions.AllowAny,),
+    )
+    HAS_SWAGGER = True
+except ImportError:
+    HAS_SWAGGER = False
+    schema_view = None
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
