@@ -8,7 +8,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase, APITransactionTestCase
 
-from accounts.models import BuyerDetails, FarmerDetails
+from accounts.models import ActivityLog, BuyerDetails, FarmerDetails
 from crops.models import Crop
 from marketplace.models import Marketplace
 from ml_api.models import PredictionHistory
@@ -237,6 +237,84 @@ class AdminDashboardChartsAPITests(APITestCase):
 
         self.assertIn("labels", response.data["supply_by_crop"])
         self.assertIn("values", response.data["supply_by_crop"])
+
+
+class AdminActivityLogAPITests(APITestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_user(
+            username="activity_admin",
+            email="activity.admin@example.com",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+
+        self.pending_farmer_user = User.objects.create_user(
+            username="activity_farmer",
+            email="activity.farmer@example.com",
+            password="StrongPass123!",
+            is_active=True,
+        )
+        self.pending_farmer_profile = FarmerDetails.objects.create(
+            user=self.pending_farmer_user,
+            fullname="Activity Farmer",
+            is_active=False,
+        )
+
+    def _admin_login(self):
+        return self.client.post(
+            "/api/auth/admin/login/",
+            {"username": "activity_admin", "password": "StrongPass123!"},
+            format="json",
+        )
+
+    def _set_admin_token(self):
+        response = self._admin_login()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['access']}")
+        return response
+
+    def test_activity_logs_requires_admin_auth(self):
+        response = self.client.get("/api/auth/admin/activity-logs/")
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
+
+    def test_activity_logs_return_latest_entries(self):
+        self._set_admin_token()
+
+        dashboard_response = self.client.get("/api/auth/admin/dashboard-stats/")
+        self.assertEqual(dashboard_response.status_code, status.HTTP_200_OK)
+
+        verify_response = self.client.patch(
+            "/api/auth/admin/verify/",
+            {
+                "role": "Farmer",
+                "user_id": self.pending_farmer_user.id,
+                "is_active": True,
+            },
+            format="json",
+        )
+        self.assertEqual(verify_response.status_code, status.HTTP_200_OK)
+
+        response = self.client.get("/api/auth/admin/activity-logs/?limit=10")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(response.data["count"], 3)
+        self.assertEqual(response.data["results"][0]["action_type"], ActivityLog.ActionType.USER_APPROVED)
+        self.assertEqual(response.data["results"][0]["user"], "activity_admin")
+
+        action_types = [item["action_type"] for item in response.data["results"]]
+        self.assertIn(ActivityLog.ActionType.ADMIN_LOGIN_SUCCESS, action_types)
+        self.assertIn(ActivityLog.ActionType.DASHBOARD_VIEWED, action_types)
+
+    def test_activity_logs_limit_validation(self):
+        self._set_admin_token()
+
+        response = self.client.get("/api/auth/admin/activity-logs/?limit=500")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "limit must be between 1 and 100")
 
 
 class AdminReportsAPITests(APITransactionTestCase):

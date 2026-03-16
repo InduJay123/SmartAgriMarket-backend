@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import FarmerDetails, BuyerDetails
+from .models import ActivityLog, FarmerDetails, BuyerDetails
 
 
 def _approve_profiles(queryset):
@@ -33,3 +33,11 @@ class BuyerDetailsAdmin(admin.ModelAdmin):
     def approve_selected(self, request, queryset):
         _approve_profiles(queryset)
     approve_selected.short_description = "Approve selected buyers"
+
+
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "actor_username", "action_type", "module", "message")
+    list_filter = ("action_type", "module", "created_at")
+    search_fields = ("actor_username", "message")
+    readonly_fields = ("created_at",)

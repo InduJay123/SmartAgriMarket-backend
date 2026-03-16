@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import FarmerDetails, BuyerDetails
+from .models import ActivityLog, FarmerDetails, BuyerDetails
 
 
 class FarmerAdminSerializer(serializers.ModelSerializer):
@@ -81,3 +81,32 @@ class BuyerAdminSerializer(serializers.ModelSerializer):
         if obj.user.is_active:
             return "pending"
         return "rejected"
+
+
+class ActivityLogSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    action = serializers.CharField(source="get_action_type_display", read_only=True)
+    date = serializers.SerializerMethodField()
+    timestamp = serializers.DateTimeField(source="created_at", read_only=True)
+
+    class Meta:
+        model = ActivityLog
+        fields = [
+            "id",
+            "date",
+            "timestamp",
+            "action",
+            "action_type",
+            "module",
+            "message",
+            "user",
+            "metadata",
+        ]
+
+    def get_user(self, obj):
+        if obj.actor:
+            return obj.actor.username
+        return obj.actor_username or "System"
+
+    def get_date(self, obj):
+        return obj.created_at.date().isoformat()
