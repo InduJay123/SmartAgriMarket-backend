@@ -14,15 +14,22 @@ from .models import PriceUpload, CropPrice
 from .serializers import PriceUploadSerializer
 
 
-class IsAdminOnly(permissions.BasePermission):
+class IsBuyerFarmerOrAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)
+        user = request.user
+        if not user or not user.is_authenticated:
+            return False
+
+        if user.is_staff or user.is_superuser:
+            return True
+
+        return hasattr(user, "farmerdetails") or hasattr(user, "buyerdetails")
 
 
 class PriceUploadListCreateAPI(generics.ListCreateAPIView):
     queryset = PriceUpload.objects.all().order_by("-created_at")
     serializer_class = PriceUploadSerializer
-    permission_classes = [IsAdminOnly]
+    permission_classes = [IsBuyerFarmerOrAdmin]
     parser_classes = [MultiPartParser, FormParser]
 
     def create(self, request, *args, **kwargs):
