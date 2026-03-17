@@ -37,9 +37,9 @@ from django.utils import timezone
 from datetime import timedelta
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import PredictionHistory, ModelMetadata
 from .serializers import (
@@ -131,6 +131,7 @@ class ModelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def yield_predict(request):
     """Predict crop yield."""
     serializer = YieldPredictionRequestSerializer(data=request.data)
@@ -175,6 +176,7 @@ def yield_predict(request):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def price_predict(request):
     """Predict crop price."""
     serializer = PricePredictionRequestSerializer(data=request.data)
@@ -227,6 +229,7 @@ def price_predict(request):
 # NEW: Demand Forecast API
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def demand_forecast(request):
     """
     Forecast DAILY demand for next N days.
@@ -303,6 +306,7 @@ def demand_forecast(request):
 
 # Keep your old demand_predict endpoint for compatibility (optional)
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def demand_predict(request):
     """
     Old endpoint (single-value style).
@@ -394,6 +398,7 @@ def demand_predict(request):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def price_forecast(request):
     """
     Forecast DAILY price for next N days.
@@ -465,6 +470,7 @@ def price_forecast(request):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def prediction_explain(request):
     """Generate explanation for a prediction."""
     try:
@@ -529,6 +535,7 @@ def prediction_explain(request):
 
 # keep your yield_forecast exactly if it already works in your project
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def yield_forecast(request):
     crop_type = request.data.get("crop_type")
     months = request.data.get("months", 6)
@@ -580,6 +587,7 @@ class FloodPredictionView(APIView):
     Predicts flood risk for a given location based on weather, environmental,
     and infrastructure features.
     """
+    permission_classes = [AllowAny]
     
     @swagger_auto_schema(
         operation_description="Predict flood risk for a given location",
@@ -651,6 +659,7 @@ class BatchFloodPredictionView(APIView):
     
     Predicts flood risk for multiple locations in a single request.
     """
+    permission_classes = [AllowAny]
     
     @swagger_auto_schema(
         operation_description="Predict flood risk for multiple locations",
@@ -725,6 +734,7 @@ class ModelInfoView(APIView):
     
     Get information about the loaded flood prediction model.
     """
+    permission_classes = [AllowAny]
     
     @swagger_auto_schema(
         operation_description="Get information about the flood prediction model",
@@ -763,6 +773,7 @@ class FeatureImportanceView(APIView):
     
     Get the most important features for flood prediction.
     """
+    permission_classes = [AllowAny]
     
     def get(self, request):
         """
@@ -805,6 +816,7 @@ class FeatureImportanceView(APIView):
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def health_check(request):
     """
     Health check endpoint for the ML API.
