@@ -107,11 +107,11 @@ WSGI_APPLICATION = 'smartagri_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'smartagrimarket',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '3306'
+        'NAME': os.getenv('DATABASE_NAME', 'smartagrimarket'),
+        'USER': os.getenv('DATABASE_USER', 'root'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'), # Use host.docker.internal to connect to host DB from container
+        'PORT': os.getenv('DATABASE_PORT', '3306')
     }
 }
 
