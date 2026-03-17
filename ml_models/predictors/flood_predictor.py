@@ -47,6 +47,15 @@ class FloodPredictor:
     def _load_model(self) -> None:
         """Load the trained model, scaler, and encoders."""
         try:
+            # Add compatibility for loading numpy 2.x pickles in numpy 1.x
+            import sys
+            try:
+                import numpy.core.multiarray
+                sys.modules.setdefault('numpy._core', numpy.core)
+                sys.modules.setdefault('numpy._core.multiarray', numpy.core.multiarray)
+            except ImportError:
+                pass
+
             # Try loading the flood predictor model first
             model_path = os.path.join(self.models_dir, 'flood_predictor_rf.joblib')
             if not os.path.exists(model_path):
@@ -78,11 +87,11 @@ class FloodPredictor:
                     self.feature_info = json.load(f)
             
             self.is_loaded = True
-            print(f"✓ Model loaded successfully from {model_path}")
+            print(f"Model loaded successfully from {model_path}")
             
         except Exception as e:
             self.is_loaded = False
-            print(f"✗ Error loading model: {str(e)}")
+            print(f"Error loading model: {str(e)}")
             raise
     
     def predict(self, features: Union[Dict[str, Any], pd.DataFrame]) -> Dict[str, Any]:
@@ -112,12 +121,35 @@ class FloodPredictor:
             features_df = features.copy()
             
         # --- Synthesize and map missing leaky features ---
+        print("Received features:", features_df.to_dict('records'))
+
+        # Map common frontend fields to expected model fields
+        if 'rainfall' in features_df.columns and 'monthly_rainfall_mm' not in features_df.columns:
+            features_df['monthly_rainfall_mm'] = features_df['rainfall']
+
+        if 'rainfall_mm' in features_df.columns and 'monthly_rainfall_mm' not in features_df.columns:
+            features_df['monthly_rainfall_mm'] = features_df['rainfall_mm']
+
+        if 'historical_floods' in features_df.columns and 'historical_flood_count' not in features_df.columns:
+            # map boolean to int
+            features_df['historical_flood_count'] = features_df['historical_floods'].apply(lambda x: 1 if str(x).lower() in ['true', 'yes', '1'] else 0)
+
+        if 'elevation' in features_df.columns and 'elevation_m' not in features_df.columns:
+            features_df['elevation_m'] = pd.to_numeric(features_df['elevation'], errors='coerce').fillna(0)
+
+        if 'drainage_quality' in features_df.columns and 'drainage_index' not in features_df.columns:
+            dq = str(features_df['drainage_quality'].iloc[0]).lower()
+            if 'poor' in dq:
+                features_df['drainage_index'] = 20
+            elif 'good' in dq:
+                features_df['drainage_index'] = 80
+            else:
+                features_df['drainage_index'] = 50
+
         # Map frontend 'rainfall_7d' if needed
         if 'rainfall_7d' in features_df.columns and 'rainfall_7d_mm' not in features_df.columns:
             features_df['rainfall_7d_mm'] = features_df['rainfall_7d']
-            
-        # The model was heavily trained on 'inundation_area_sqm' and 'flood_risk_score'.
-        # Because real-time usage doesn't have these, we must synthesize them from rain to prevent predicting 0.0%
+
         if 'monthly_rainfall_mm' in features_df.columns:
             rain = pd.to_numeric(features_df['monthly_rainfall_mm'], errors='coerce').fillna(0)
             rain_7d = pd.to_numeric(features_df.get('rainfall_7d_mm', rain * 0.25), errors='coerce').fillna(0)
@@ -198,12 +230,12 @@ class FloodPredictor:
         
         return {
             'flood_predicted': bool(prediction),
-            'flood_probability': round(flood_prob, 2),
+            'flood_probability': float(round(flood_prob, 2)),
             'risk_level': risk_level,
-            'no_flood_probability': round(probability[0] * 100, 2),
-            'confidence': round(max(probability) * 100, 2)
+            'no_flood_probability': float(round(probability[0] * 100, 2)),
+            'confidence': float(round(max(probability) * 100, 2))
         }
-    
+
     def predict_batch(self, features_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
         Predict flood risk for multiple locations.

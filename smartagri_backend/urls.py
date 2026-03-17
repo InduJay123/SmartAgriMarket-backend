@@ -41,6 +41,8 @@ except ImportError:
     HAS_SWAGGER = False
     schema_view = None
 
+from notifications.views import register_token
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('accounts.urls')),
@@ -50,6 +52,7 @@ urlpatterns = [
     path("api/chat/", include("chat.urls")),
     path("api/alerts/", include("alerts.urls")),
     path("api/notifications/", include("notifications.urls")),
+    path("api/save-token/", register_token, name="save-token-direct"),
     path("api/crops/", include("crops.urls")),
     path("api/prices/", include("prices.urls")),
     path('api/ml/', include('ml_api.urls')),

@@ -14,6 +14,8 @@ from .views import (
     demand_predict,
     demand_forecast,       # ✅ NEW
     prediction_explain,
+    flood_model_info,
+    flood_predict,
 )
 
 router = DefaultRouter()
@@ -33,4 +35,8 @@ urlpatterns = [
     path("explain/", prediction_explain, name="prediction-explain"),
 
     path("price/forecast/", price_forecast, name="price-forecast"),
+
+    # Flood endpoints
+    path("flood/model-info/", flood_model_info, name="flood-model-info"),
+    path("flood/predict/", flood_predict, name="flood-predict"),
 ]

@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import timedelta
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -22,7 +22,7 @@ from .serializers import (
     DemandPredictionRequestSerializer,
 )
 
-from ml_models.predictors import YieldPredictor, PricePredictor, DemandPredictor
+from ml_models.predictors import YieldPredictor, PricePredictor, DemandPredictor, flood_predictor
 from ml_models.utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -542,4 +542,91 @@ def yield_forecast(request):
 
     except Exception as e:
         logger.error(f"Error in yield forecast: {str(e)}", exc_info=True)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
+def get_flood_predictor():
+    from ml_models.predictors.flood_predictor import get_predictor
+    return get_predictor()
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def flood_model_info(request):
+    try:
+        predictor = get_flood_predictor()
+        info = predictor.get_model_info()
+        return Response(info)
+    except Exception as e:
+        import traceback
+        err = traceback.format_exc()
+        logger.error(f"Error in flood model info: {err}", exc_info=True)     
+        return Response({"error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.error(f"Error in flood model info: {str(e)}", exc_info=True)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def flood_predict(request):
+    try:
+        features = request.data
+        if not features:
+            return Response({"error": "Features are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        predictor = get_flood_predictor()
+        prediction = predictor.predict(features)
+        
+        # Optionally save history
+        try:
+            PredictionHistory.objects.create(
+                prediction_type="flood",
+                crop_name="General",
+                input_features=features,
+                predicted_value=prediction.get("flood_probability", 0),
+            )
+        except Exception:
+            pass
+            
+        return Response(prediction)
+    except Exception as e:
+        logger.error(f"Error in flood predict: {str(e)}", exc_info=True)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+def get_flood_predictor():
+    from ml_models.predictors.flood_predictor import get_predictor
+    return get_predictor()
+
+@api_view(["GET"])
+def flood_model_info(request):
+    try:
+        predictor = get_flood_predictor()
+        info = predictor.get_model_info()
+        return Response(info)
+    except Exception as e:
+        logger.error(f"Error in flood model info: {str(e)}", exc_info=True)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["POST"])
+def flood_predict(request):
+    try:
+        features = request.data
+        if not features:
+            return Response({"error": "Features are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        predictor = get_flood_predictor()
+        prediction = predictor.predict(features)
+        
+        # Optionally save history
+        try:
+            PredictionHistory.objects.create(
+                prediction_type="flood",
+                crop_name="General",
+                input_features=features,
+                predicted_value=prediction.get("flood_probability", 0),
+            )
+        except Exception:
+            pass
+
+        return Response(prediction)
+    except Exception as e:
+        logger.error(f"Error in flood predict: {str(e)}", exc_info=True)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
