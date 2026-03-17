@@ -105,24 +105,28 @@ WSGI_APPLICATION = 'smartagri_backend.wsgi.application'
 
 DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite3').lower()
 
-if DB_ENGINE == 'mysql':
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.getenv('DATABASE_NAME', 'smartagrimarket'),
-            'USER': os.getenv('DATABASE_USER', 'root'),
-            'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
-            'HOST': os.getenv('DATABASE_HOST', 'localhost'),
-            'PORT': os.getenv('DATABASE_PORT', '3306'),
-        }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'smartagrimarket',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': '127.0.0.1',
+        'PORT': '3306'
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
+    # DATABASES = {
+    #     # 'default': {
+    #     #     'ENGINE': 'django.db.backends.mysql',
+    #     #     'NAME': os.getenv('DATABASE_NAME', 'smartagrimarket'),
+    #     #     'USER': os.getenv('DATABASE_USER', 'root'),
+    #     #     'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
+    #     #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+    #     #     'PORT': os.getenv('DATABASE_PORT', '3306'),
+    #     # }
+    # }
+
 
 
 # Password validation
