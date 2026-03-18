@@ -2,9 +2,11 @@ from rest_framework import serializers
 from .models import Crop, Marketplace
 
 class CropSerializer(serializers.ModelSerializer):
+    total_quantity = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Crop
-        fields = ['crop_id', 'crop_name', 'description', 'image', 'category']
+        fields = ['crop_id', 'crop_name', 'description', 'image', 'category', 'total_quantity']
 
 class MarketplaceSerializer(serializers.ModelSerializer):   
     crop_name = serializers.SerializerMethodField()
