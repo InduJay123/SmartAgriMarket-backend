@@ -797,11 +797,31 @@ class AdminUserDetailAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, user_id):
-        # Frontend currently sends list item `id` from admin lists.
-        # Accept both user_id and profile PK to keep the existing button behavior working.
-        farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
-        if not farmer:
-            farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+        # Allow checking a specific role
+        target_role = request.query_params.get("role", "").strip().lower()
+
+        farmer = None
+        buyer = None
+
+        if target_role == "buyer":
+            buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
+            if not buyer:
+                buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
+        elif target_role in ["farmer", "farmers"]:
+            farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
+            if not farmer:
+                farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+        else:
+            # Fallback to the old logic if no role is explicitly passed
+            farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
+            if not farmer:
+                farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+
+            if not farmer:
+                buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
+                if not buyer:
+                    buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
+
         if farmer:
             return Response({
                 "id": farmer.user_id,
@@ -817,12 +837,9 @@ class AdminUserDetailAPI(APIView):
                 "about": farmer.about,
                 "profile_image": farmer.profile_image,
                 "is_active": farmer.is_active,
-                "is_verified": getattr(farmer.user, 'is_active', True), # Wait, verified usually tied to something else, checking soon
+                "is_verified": getattr(farmer.user, 'is_active', True),
             })
 
-        buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
-        if not buyer:
-            buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
         if buyer:
             return Response({
                 "id": buyer.user_id,
