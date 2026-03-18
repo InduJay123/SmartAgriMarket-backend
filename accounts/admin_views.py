@@ -847,6 +847,7 @@ class AdminUserDetailAPI(APIView):
                 "city": buyer.city,
                 "profile_image": buyer.profile_image,
                 "is_active": buyer.is_active,
+                "is_verified": getattr(buyer.user, 'is_active', True),
             })
 
         return Response({"error": "Profile not found"}, status=404)

@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from rest_framework import viewsets
 from .models import Crop, Marketplace
 from .serializers import CropSerializer, MarketplaceSerializer
@@ -10,7 +10,11 @@ class CropViewSet(viewsets.ModelViewSet):
     serializer_class = CropSerializer
 
     def get_queryset(self):
-        return Crop.objects.annotate(total_quantity=Sum('marketplace__quantity')).order_by('crop_id')
+        return Crop.objects.annotate(
+            total_quantity=Sum('marketplace__quantity'),
+            yala_quantity=Sum('marketplace__quantity', filter=Q(marketplace__farming_season__iexact='yala')),
+            maha_quantity=Sum('marketplace__quantity', filter=Q(marketplace__farming_season__iexact='maha'))
+        ).order_by('crop_id')
 
     def create(self, request, *args, **kwargs):
         print("REQUEST DATA --->", request.data)  # DEBUG
