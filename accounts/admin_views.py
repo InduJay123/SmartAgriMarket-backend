@@ -457,14 +457,6 @@ class AdminDashboardStatsAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        _log_activity(
-            user=request.user,
-            action_type=ActivityLog.ActionType.DASHBOARD_VIEWED,
-            module="dashboard",
-            message="Viewed admin dashboard overview",
-            metadata={},
-        )
-
         total_farmers = FarmerDetails.objects.count()
         verified_farmers = FarmerDetails.objects.filter(is_active=True).count()
         # pending = registered but not yet reviewed (excludes rejected users)
@@ -892,6 +884,17 @@ class AdminUserDetailAPI(APIView):
             changed = True
             
         if changed:
+            # Log the change
+            try:
+                action_text = "Verified" if (is_verified or is_active) else "Disabled"
+                _log_activity(
+                    user=request.user,
+                    action_type="USER_STATUS_UPDATE",
+                    module="User Management",
+                    message=f"{action_text} account for {user.username} ({user.email})"
+                )
+            except Exception as e:
+                pass
             return Response({"message": "User status updated successfully", "is_active": is_active, "is_verified": is_verified})
         else:
             return Response({"error": "No valid fields provided to update"}, status=400)
