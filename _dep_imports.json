@@ -1,0 +1,3138 @@
+{
+  "os": [
+    {
+      "file": "manage.py",
+      "line": 3,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "test_price.py",
+      "line": 5,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "use_predicted_price.py",
+      "line": 1,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 185,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 33,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 5,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/test_yield.py",
+      "line": 6,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/predictors/demand_predictor.py",
+      "line": 3,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/predictors/flood_predictor.py",
+      "line": 8,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 15,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 2,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/training/train_price_model.py",
+      "line": 9,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "ml_models/utils/config.py",
+      "line": 5,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "notifications/firebase.py",
+      "line": 1,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 2,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "smartagri_backend/asgi.py",
+      "line": 10,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "smartagri_backend/settings.py",
+      "line": 13,
+      "kind": "import",
+      "full": "os"
+    },
+    {
+      "file": "smartagri_backend/wsgi.py",
+      "line": 10,
+      "kind": "import",
+      "full": "os"
+    }
+  ],
+  "sys": [
+    {
+      "file": "manage.py",
+      "line": 4,
+      "kind": "import",
+      "full": "sys"
+    },
+    {
+      "file": "test_price.py",
+      "line": 5,
+      "kind": "import",
+      "full": "sys"
+    },
+    {
+      "file": "use_predicted_price.py",
+      "line": 2,
+      "kind": "import",
+      "full": "sys"
+    },
+    {
+      "file": "ml_models/test_yield.py",
+      "line": 5,
+      "kind": "import",
+      "full": "sys"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 114,
+      "kind": "import",
+      "full": "sys"
+    },
+    {
+      "file": "ml_models/training/train_price_model.py",
+      "line": 10,
+      "kind": "import",
+      "full": "sys"
+    }
+  ],
+  "django": [
+    {
+      "file": "manage.py",
+      "line": 11,
+      "kind": "from",
+      "full": "django.core.management"
+    },
+    {
+      "file": "accounts/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "accounts/admin.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.utils"
+    },
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.contrib.auth.password_validation"
+    },
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.core.exceptions"
+    },
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "django.contrib.auth"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.http"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 10,
+      "kind": "from",
+      "full": "django.contrib.auth"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 11,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 12,
+      "kind": "from",
+      "full": "django.utils"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 13,
+      "kind": "from",
+      "full": "django.utils.dateparse"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 14,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 15,
+      "kind": "from",
+      "full": "django.db.models"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 16,
+      "kind": "from",
+      "full": "django.db.models.functions"
+    },
+    {
+      "file": "accounts/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "accounts/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/models_admin.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/models_admin.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/serializers_admin_settings.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 7,
+      "kind": "from",
+      "full": "django.utils"
+    },
+    {
+      "file": "accounts/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.contrib.auth"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "django.contrib.auth"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 13,
+      "kind": "from",
+      "full": "django.core.mail"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 14,
+      "kind": "from",
+      "full": "django.utils.timezone"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 15,
+      "kind": "from",
+      "full": "django.contrib.auth.hashers"
+    },
+    {
+      "file": "accounts/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "accounts/migrations/0001_initial.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "accounts/migrations/0001_initial.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0002_rename_phone_farmerdetails_contact_number_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0003_rename_full_name_buyerdetails_fullname_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0004_farmerdetails_region.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0005_farmerdetails_about_farmerdetails_address_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0006_remove_buyerdetails_address_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0007_rename_street_address_buyerdetails_address.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0008_buyerdetails_profile_image.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0009_rename_market_name_buyerdetails_company_name.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0010_buyerdetails_reset_token_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0011_buyerdetails_is_verified_buyerdetails_verified_at_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0012_rename_verified_at_buyerdetails_deactivate_at_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0013_adminprofile.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "accounts/migrations/0013_adminprofile.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "accounts/migrations/0013_adminprofile.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0014_activitylog.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "accounts/migrations/0014_activitylog.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "accounts/migrations/0014_activitylog.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "accounts/migrations/0015_rename_accounts_act_created_67706a_idx_accounts_ac_created_91b66e_idx_and_more.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "alerts/admin.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "alerts/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "alerts/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "alerts/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "alerts/signals.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db.models.signals"
+    },
+    {
+      "file": "alerts/signals.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.dispatch"
+    },
+    {
+      "file": "alerts/signals.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "alerts/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "alerts/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.shortcuts"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.utils"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 85,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "alerts/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "alerts/migrations/0002_remove_alert_calendar_added_remove_alert_status_and_more.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "alerts/migrations/0002_remove_alert_calendar_added_remove_alert_status_and_more.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "alerts/migrations/0002_remove_alert_calendar_added_remove_alert_status_and_more.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "alerts/migrations/0003_alert_scheduled_for_alert_status_alert_title_and_more.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "alerts/migrations/0003_alert_scheduled_for_alert_status_alert_title_and_more.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "alerts/migrations/0003_alert_scheduled_for_alert_status_alert_title_and_more.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "alerts/migrations/0004_alert_level.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "chat/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "chat/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "chat/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "chat/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "chat/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "chat/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.db.models"
+    },
+    {
+      "file": "chat/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "chat/migrations/0001_initial.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "chat/migrations/0001_initial.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "chatbot/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "chatbot/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "chatbot/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "chatbot/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.utils"
+    },
+    {
+      "file": "chatbot/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "chatbot/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 187,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "crops/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "crops/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "crops/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "crops/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "crops/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "crops/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "crops/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "dashboard/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "dashboard/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "dashboard/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "dashboard/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "dashboard/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "documents/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "documents/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "documents/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "documents/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "documents/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.shortcuts"
+    },
+    {
+      "file": "documents/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "marketplace/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db.models"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.db.models.functions"
+    },
+    {
+      "file": "marketplace/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "marketplace/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "marketplace/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "marketplace/serializers.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "marketplace/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "marketplace/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "marketplace/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.core.validators"
+    },
+    {
+      "file": "marketplace/migrations/0001_initial.py",
+      "line": 4,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "marketplace/migrations/0001_initial.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "marketplace/migrations/0001_initial.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "marketplace/migrations/0002_crop_alter_marketplace_options_favourite.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "marketplace/migrations/0002_crop_alter_marketplace_options_favourite.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "marketplace/migrations/0002_crop_alter_marketplace_options_favourite.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "marketplace/migrations/0003_alter_marketplace_table.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "marketplace/migrations/0004_alter_favourite_options.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "ml_api/admin.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "ml_api/apps.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "ml_api/models.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "ml_api/models.py",
+      "line": 58,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "ml_api/tests.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "ml_api/urls.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 35,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 36,
+      "kind": "from",
+      "full": "django.utils"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.core.management.base"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth"
+    },
+    {
+      "file": "ml_api/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "notifications/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "notifications/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "notifications/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "notifications/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "notifications/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "notifications/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "notifications/utils.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "notifications/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "notifications/migrations/0001_initial.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "notifications/migrations/0001_initial.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "notifications_app/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "notifications_app/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "notifications_app/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "notifications_app/models.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "notifications_app/models.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "notifications_app/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "notifications_app/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.shortcuts"
+    },
+    {
+      "file": "prices/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "prices/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "prices/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "prices/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "prices/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "prices/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "prices/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "prices/migrations/0001_initial.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "prices/migrations/0001_initial.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "reviews/admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "reviews/apps.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.apps"
+    },
+    {
+      "file": "reviews/models.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "reviews/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "django.contrib.auth.models"
+    },
+    {
+      "file": "reviews/tests.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.test"
+    },
+    {
+      "file": "reviews/urls.py",
+      "line": 1,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "django.db.models"
+    },
+    {
+      "file": "reviews/migrations/0001_initial.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "reviews/migrations/0001_initial.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "reviews/migrations/0001_initial.py",
+      "line": 5,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "reviews/migrations/0002_remove_review_product_db_constraint.py",
+      "line": 3,
+      "kind": "import",
+      "full": "django.db.models.deletion"
+    },
+    {
+      "file": "reviews/migrations/0002_remove_review_product_db_constraint.py",
+      "line": 4,
+      "kind": "from",
+      "full": "django.db"
+    },
+    {
+      "file": "smartagri_backend/asgi.py",
+      "line": 12,
+      "kind": "from",
+      "full": "django.core.asgi"
+    },
+    {
+      "file": "smartagri_backend/urls.py",
+      "line": 17,
+      "kind": "from",
+      "full": "django.contrib"
+    },
+    {
+      "file": "smartagri_backend/urls.py",
+      "line": 18,
+      "kind": "from",
+      "full": "django.urls"
+    },
+    {
+      "file": "smartagri_backend/urls.py",
+      "line": 35,
+      "kind": "from",
+      "full": "django.conf"
+    },
+    {
+      "file": "smartagri_backend/urls.py",
+      "line": 36,
+      "kind": "from",
+      "full": "django.conf.urls.static"
+    },
+    {
+      "file": "smartagri_backend/wsgi.py",
+      "line": 12,
+      "kind": "from",
+      "full": "django.core.wsgi"
+    }
+  ],
+  "requests": [
+    {
+      "file": "quick_test.py",
+      "line": 1,
+      "kind": "import",
+      "full": "requests"
+    },
+    {
+      "file": "test_all_apis.py",
+      "line": 2,
+      "kind": "import",
+      "full": "requests"
+    },
+    {
+      "file": "test_api.py",
+      "line": 2,
+      "kind": "import",
+      "full": "requests"
+    },
+    {
+      "file": "test_both_apis.py",
+      "line": 2,
+      "kind": "import",
+      "full": "requests"
+    },
+    {
+      "file": "test_vegetables.py",
+      "line": 2,
+      "kind": "import",
+      "full": "requests"
+    }
+  ],
+  "json": [
+    {
+      "file": "quick_test.py",
+      "line": 2,
+      "kind": "import",
+      "full": "json"
+    },
+    {
+      "file": "_dep_scan.py",
+      "line": 2,
+      "kind": "import",
+      "full": "json"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 7,
+      "kind": "import",
+      "full": "json"
+    },
+    {
+      "file": "ml_models/predictors/flood_predictor.py",
+      "line": 9,
+      "kind": "import",
+      "full": "json"
+    },
+    {
+      "file": "ml_models/utils/helpers.py",
+      "line": 6,
+      "kind": "import",
+      "full": "json"
+    }
+  ],
+  "time": [
+    {
+      "file": "quick_test.py",
+      "line": 3,
+      "kind": "import",
+      "full": "time"
+    },
+    {
+      "file": "test_vegetables.py",
+      "line": 3,
+      "kind": "import",
+      "full": "time"
+    }
+  ],
+  "ml_models": [
+    {
+      "file": "test_demand.py",
+      "line": 1,
+      "kind": "from",
+      "full": "ml_models.predictors.demand_predictor"
+    },
+    {
+      "file": "test_price.py",
+      "line": 8,
+      "kind": "from",
+      "full": "ml_models.predictors.price_predictor"
+    },
+    {
+      "file": "use_predicted_price.py",
+      "line": 9,
+      "kind": "from",
+      "full": "ml_models.predictors.price_predictor"
+    },
+    {
+      "file": "use_predicted_price.py",
+      "line": 10,
+      "kind": "from",
+      "full": "ml_models.predictors.demand_predictor"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 12,
+      "kind": "from",
+      "full": "ml_models.predictors"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 53,
+      "kind": "from",
+      "full": "ml_models.predictors"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 54,
+      "kind": "from",
+      "full": "ml_models.utils.logger"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 25,
+      "kind": "from",
+      "full": "ml_models.predictors.flood_predictor"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 10,
+      "kind": "from",
+      "full": "ml_models.predictors.price_predictor"
+    },
+    {
+      "file": "ml_models/print_price_predictor_accuracy.py",
+      "line": 5,
+      "kind": "from",
+      "full": "ml_models.predictors.price_predictor"
+    },
+    {
+      "file": "ml_models/tests/test_predictors.py",
+      "line": 7,
+      "kind": "from",
+      "full": "ml_models.predictors"
+    },
+    {
+      "file": "ml_models/tests/test_preprocessing.py",
+      "line": 8,
+      "kind": "from",
+      "full": "ml_models.preprocessing"
+    },
+    {
+      "file": "ml_models/training/train_price_model.py",
+      "line": 18,
+      "kind": "from",
+      "full": "ml_models.predictors.price_predictor"
+    }
+  ],
+  "datetime": [
+    {
+      "file": "use_predicted_price.py",
+      "line": 3,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 17,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 2,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 16,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 9,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 37,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 3,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "ml_models/predictors/demand_predictor.py",
+      "line": 7,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 17,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 6,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "datetime"
+    },
+    {
+      "file": "smartagri_backend/settings.py",
+      "line": 15,
+      "kind": "from",
+      "full": "datetime"
+    }
+  ],
+  "ast": [
+    {
+      "file": "_dep_scan.py",
+      "line": 1,
+      "kind": "import",
+      "full": "ast"
+    }
+  ],
+  "pathlib": [
+    {
+      "file": "_dep_scan.py",
+      "line": 3,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 3,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 71,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/training/train_yield_model.py",
+      "line": 3,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/training/train_yield_model.py",
+      "line": 7,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/utils/config.py",
+      "line": 6,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/utils/helpers.py",
+      "line": 8,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "ml_models/utils/logger.py",
+      "line": 7,
+      "kind": "from",
+      "full": "pathlib"
+    },
+    {
+      "file": "smartagri_backend/settings.py",
+      "line": 14,
+      "kind": "from",
+      "full": "pathlib"
+    }
+  ],
+  "collections": [
+    {
+      "file": "_dep_scan.py",
+      "line": 4,
+      "kind": "from",
+      "full": "collections"
+    }
+  ],
+  "models": [
+    {
+      "file": "accounts/admin.py",
+      "line": 3,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 20,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "accounts/permissions.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "accounts/serializers.py",
+      "line": 3,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "accounts/serializers_admin.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 9,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "alerts/admin.py",
+      "line": 3,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "alerts/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "alerts/signals.py",
+      "line": 3,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "chat/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "chatbot/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "crops/admin.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "crops/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "crops/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "documents/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 8,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "marketplace/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "ml_api/admin.py",
+      "line": 6,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "ml_api/serializers.py",
+      "line": 6,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 44,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "notifications/utils.py",
+      "line": 3,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "notifications/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "prices/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 13,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "reviews/serializers.py",
+      "line": 2,
+      "kind": "from",
+      "full": "models"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "models"
+    }
+  ],
+  "rest_framework": [
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 8,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "accounts/admin_views.py",
+      "line": 9,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/permissions.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "accounts/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/serializers_admin.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/serializers_admin_settings.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 8,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 9,
+      "kind": "from",
+      "full": "rest_framework.test"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 8,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 11,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "alerts/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "chat/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "chatbot/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "chatbot/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.routers"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "crops/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "crops/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.routers"
+    },
+    {
+      "file": "crops/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "crops/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "crops/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "crops/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "dashboard/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "dashboard/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "dashboard/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "documents/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "marketplace/admin_views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "marketplace/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "marketplace/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.routers"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 8,
+      "kind": "from",
+      "full": "rest_framework.exceptions"
+    },
+    {
+      "file": "ml_api/serializers.py",
+      "line": 5,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "ml_api/tests.py",
+      "line": 7,
+      "kind": "from",
+      "full": "rest_framework.test"
+    },
+    {
+      "file": "ml_api/urls.py",
+      "line": 6,
+      "kind": "from",
+      "full": "rest_framework.routers"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.views"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 39,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 40,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 41,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 42,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "notifications/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "notifications/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    },
+    {
+      "file": "notifications/views.py",
+      "line": 4,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "prices/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 9,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 10,
+      "kind": "from",
+      "full": "rest_framework.parsers"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 11,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "reviews/serializers.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 1,
+      "kind": "from",
+      "full": "rest_framework.decorators"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "rest_framework.response"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "rest_framework.permissions"
+    }
+  ],
+  "models_admin": [
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 9,
+      "kind": "from",
+      "full": "models_admin"
+    },
+    {
+      "file": "accounts/serializers_admin_settings.py",
+      "line": 3,
+      "kind": "from",
+      "full": "models_admin"
+    }
+  ],
+  "serializers_admin_settings": [
+    {
+      "file": "accounts/admin_settings_views.py",
+      "line": 10,
+      "kind": "from",
+      "full": "serializers_admin_settings"
+    }
+  ],
+  "csv": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 1,
+      "kind": "import",
+      "full": "csv"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 3,
+      "kind": "import",
+      "full": "csv"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 1,
+      "kind": "import",
+      "full": "csv"
+    }
+  ],
+  "decimal": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 2,
+      "kind": "from",
+      "full": "decimal"
+    }
+  ],
+  "io": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "io"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 4,
+      "kind": "from",
+      "full": "io"
+    }
+  ],
+  "rest_framework_simplejwt": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 18,
+      "kind": "from",
+      "full": "rest_framework_simplejwt.tokens"
+    },
+    {
+      "file": "accounts/views.py",
+      "line": 10,
+      "kind": "from",
+      "full": "rest_framework_simplejwt.tokens"
+    }
+  ],
+  "serializers_admin": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 21,
+      "kind": "from",
+      "full": "serializers_admin"
+    }
+  ],
+  "crops": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 22,
+      "kind": "from",
+      "full": "crops.models"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 12,
+      "kind": "from",
+      "full": "crops.models"
+    },
+    {
+      "file": "dashboard/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "crops.models"
+    }
+  ],
+  "ml_api": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 23,
+      "kind": "from",
+      "full": "ml_api.models"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 14,
+      "kind": "from",
+      "full": "ml_api.models"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 7,
+      "kind": "from",
+      "full": "ml_api.models"
+    }
+  ],
+  "prices": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 24,
+      "kind": "from",
+      "full": "prices.models"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 15,
+      "kind": "from",
+      "full": "prices.models"
+    }
+  ],
+  "marketplace": [
+    {
+      "file": "accounts/admin_views.py",
+      "line": 25,
+      "kind": "from",
+      "full": "marketplace.models"
+    },
+    {
+      "file": "accounts/tests.py",
+      "line": 13,
+      "kind": "from",
+      "full": "marketplace.models"
+    },
+    {
+      "file": "reviews/models.py",
+      "line": 3,
+      "kind": "from",
+      "full": "marketplace.models"
+    }
+  ],
+  "accounts": [
+    {
+      "file": "accounts/tests.py",
+      "line": 11,
+      "kind": "from",
+      "full": "accounts.models"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 9,
+      "kind": "from",
+      "full": "accounts.models"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "accounts.permissions"
+    },
+    {
+      "file": "dashboard/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "accounts.models"
+    },
+    {
+      "file": "documents/models.py",
+      "line": 2,
+      "kind": "from",
+      "full": "accounts.models"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 8,
+      "kind": "from",
+      "full": "accounts.models"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "accounts.permissions"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 7,
+      "kind": "from",
+      "full": "accounts.permissions"
+    }
+  ],
+  "views": [
+    {
+      "file": "accounts/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "alerts/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "chat/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "chatbot/urls.py",
+      "line": 3,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "crops/urls.py",
+      "line": 3,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "dashboard/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "documents/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "marketplace/urls.py",
+      "line": 4,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "ml_api/urls.py",
+      "line": 7,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "notifications/urls.py",
+      "line": 3,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "prices/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    },
+    {
+      "file": "reviews/urls.py",
+      "line": 2,
+      "kind": "from",
+      "full": "views"
+    }
+  ],
+  "admin_views": [
+    {
+      "file": "accounts/urls.py",
+      "line": 3,
+      "kind": "from",
+      "full": "admin_views"
+    },
+    {
+      "file": "marketplace/urls.py",
+      "line": 3,
+      "kind": "from",
+      "full": "admin_views"
+    }
+  ],
+  "admin_settings_views": [
+    {
+      "file": "accounts/urls.py",
+      "line": 4,
+      "kind": "from",
+      "full": "admin_settings_views"
+    }
+  ],
+  "serializers": [
+    {
+      "file": "accounts/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 8,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "chat/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "crops/views.py",
+      "line": 3,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "documents/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "marketplace/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 15,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 45,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 14,
+      "kind": "from",
+      "full": "serializers"
+    },
+    {
+      "file": "reviews/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "serializers"
+    }
+  ],
+  "uuid": [
+    {
+      "file": "accounts/views.py",
+      "line": 12,
+      "kind": "import",
+      "full": "uuid"
+    },
+    {
+      "file": "chatbot/views.py",
+      "line": 6,
+      "kind": "import",
+      "full": "uuid"
+    }
+  ],
+  "notifications": [
+    {
+      "file": "alerts/admin.py",
+      "line": 13,
+      "kind": "from",
+      "full": "notifications.utils"
+    },
+    {
+      "file": "alerts/signals.py",
+      "line": 4,
+      "kind": "from",
+      "full": "notifications.utils"
+    },
+    {
+      "file": "alerts/views.py",
+      "line": 10,
+      "kind": "from",
+      "full": "notifications.utils"
+    },
+    {
+      "file": "notifications/apps.py",
+      "line": 9,
+      "kind": "import",
+      "full": "notifications.firebase"
+    }
+  ],
+  "alerts": [
+    {
+      "file": "alerts/apps.py",
+      "line": 9,
+      "kind": "import",
+      "full": "alerts.signals"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 8,
+      "kind": "from",
+      "full": "alerts.models"
+    }
+  ],
+  "re": [
+    {
+      "file": "chatbot/views.py",
+      "line": 8,
+      "kind": "import",
+      "full": "re"
+    },
+    {
+      "file": "prices/views.py",
+      "line": 3,
+      "kind": "import",
+      "full": "re"
+    }
+  ],
+  "pandas": [
+    {
+      "file": "chatbot/views.py",
+      "line": 186,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 34,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_api/management/commands/generate_trend_notifications.py",
+      "line": 4,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/predictors/demand_predictor.py",
+      "line": 5,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/predictors/flood_predictor.py",
+      "line": 11,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 8,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 14,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 72,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/preprocessing/data_cleaner.py",
+      "line": 6,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/preprocessing/data_validator.py",
+      "line": 6,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/preprocessing/feature_engineering.py",
+      "line": 6,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/tests/test_preprocessing.py",
+      "line": 6,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 4,
+      "kind": "import",
+      "full": "pandas"
+    },
+    {
+      "file": "ml_models/training/train_yield_model.py",
+      "line": 1,
+      "kind": "import",
+      "full": "pandas"
+    }
+  ],
+  "logging": [
+    {
+      "file": "ml_api/apps.py",
+      "line": 17,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 16,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/preprocessing/data_cleaner.py",
+      "line": 8,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/preprocessing/data_validator.py",
+      "line": 7,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/preprocessing/feature_engineering.py",
+      "line": 8,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/training/train_price_model.py",
+      "line": 11,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/utils/helpers.py",
+      "line": 7,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/utils/logger.py",
+      "line": 5,
+      "kind": "import",
+      "full": "logging"
+    },
+    {
+      "file": "ml_models/utils/logger.py",
+      "line": 6,
+      "kind": "import",
+      "full": "logging.handlers"
+    }
+  ],
+  "unittest": [
+    {
+      "file": "ml_api/tests.py",
+      "line": 5,
+      "kind": "import",
+      "full": "unittest"
+    },
+    {
+      "file": "ml_models/tests/test_predictors.py",
+      "line": 5,
+      "kind": "import",
+      "full": "unittest"
+    },
+    {
+      "file": "ml_models/tests/test_preprocessing.py",
+      "line": 5,
+      "kind": "import",
+      "full": "unittest"
+    }
+  ],
+  "drf_yasg": [
+    {
+      "file": "ml_api/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "drf_yasg.utils"
+    },
+    {
+      "file": "ml_api/views.py",
+      "line": 6,
+      "kind": "from",
+      "full": "drf_yasg"
+    }
+  ],
+  "predictors": [
+    {
+      "file": "ml_models/test_yield.py",
+      "line": 11,
+      "kind": "from",
+      "full": "predictors.yield_predictor"
+    }
+  ],
+  "joblib": [
+    {
+      "file": "ml_models/predictors/demand_predictor.py",
+      "line": 4,
+      "kind": "import",
+      "full": "joblib"
+    },
+    {
+      "file": "ml_models/predictors/flood_predictor.py",
+      "line": 10,
+      "kind": "import",
+      "full": "joblib"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 14,
+      "kind": "import",
+      "full": "joblib"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 2,
+      "kind": "import",
+      "full": "joblib"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 70,
+      "kind": "import",
+      "full": "joblib"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 3,
+      "kind": "import",
+      "full": "joblib"
+    },
+    {
+      "file": "ml_models/training/train_yield_model.py",
+      "line": 2,
+      "kind": "import",
+      "full": "joblib"
+    }
+  ],
+  "numpy": [
+    {
+      "file": "ml_models/predictors/demand_predictor.py",
+      "line": 6,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/predictors/flood_predictor.py",
+      "line": 12,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 7,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/predictors/yield_predictor.py",
+      "line": 12,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/preprocessing/data_cleaner.py",
+      "line": 7,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/preprocessing/feature_engineering.py",
+      "line": 7,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/tests/test_predictors.py",
+      "line": 6,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/tests/test_preprocessing.py",
+      "line": 7,
+      "kind": "import",
+      "full": "numpy"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 5,
+      "kind": "import",
+      "full": "numpy"
+    }
+  ],
+  "calendar": [
+    {
+      "file": "ml_models/predictors/demand_predictor.py",
+      "line": 8,
+      "kind": "import",
+      "full": "calendar"
+    }
+  ],
+  "typing": [
+    {
+      "file": "ml_models/predictors/flood_predictor.py",
+      "line": 13,
+      "kind": "from",
+      "full": "typing"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 9,
+      "kind": "from",
+      "full": "typing"
+    },
+    {
+      "file": "ml_models/utils/helpers.py",
+      "line": 9,
+      "kind": "from",
+      "full": "typing"
+    }
+  ],
+  "sklearn": [
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 10,
+      "kind": "from",
+      "full": "sklearn.ensemble"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 11,
+      "kind": "from",
+      "full": "sklearn.preprocessing"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 12,
+      "kind": "from",
+      "full": "sklearn.model_selection"
+    },
+    {
+      "file": "ml_models/predictors/price_predictor.py",
+      "line": 13,
+      "kind": "from",
+      "full": "sklearn.metrics"
+    },
+    {
+      "file": "ml_models/preprocessing/feature_engineering.py",
+      "line": 101,
+      "kind": "from",
+      "full": "sklearn.preprocessing"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 7,
+      "kind": "from",
+      "full": "sklearn.ensemble"
+    },
+    {
+      "file": "ml_models/training/train_demand_model.py",
+      "line": 8,
+      "kind": "from",
+      "full": "sklearn.metrics"
+    },
+    {
+      "file": "ml_models/training/train_yield_model.py",
+      "line": 4,
+      "kind": "from",
+      "full": "sklearn.ensemble"
+    },
+    {
+      "file": "ml_models/training/train_yield_model.py",
+      "line": 5,
+      "kind": "from",
+      "full": "sklearn.preprocessing"
+    }
+  ],
+  "yield_predictor": [
+    {
+      "file": "ml_models/predictors/__init__.py",
+      "line": 5,
+      "kind": "from",
+      "full": "yield_predictor"
+    }
+  ],
+  "price_predictor": [
+    {
+      "file": "ml_models/predictors/__init__.py",
+      "line": 6,
+      "kind": "from",
+      "full": "price_predictor"
+    }
+  ],
+  "demand_predictor": [
+    {
+      "file": "ml_models/predictors/__init__.py",
+      "line": 7,
+      "kind": "from",
+      "full": "demand_predictor"
+    }
+  ],
+  "flood_predictor": [
+    {
+      "file": "ml_models/predictors/__init__.py",
+      "line": 8,
+      "kind": "from",
+      "full": "flood_predictor"
+    }
+  ],
+  "scipy": [
+    {
+      "file": "ml_models/preprocessing/data_cleaner.py",
+      "line": 63,
+      "kind": "from",
+      "full": "scipy"
+    }
+  ],
+  "data_cleaner": [
+    {
+      "file": "ml_models/preprocessing/__init__.py",
+      "line": 5,
+      "kind": "from",
+      "full": "data_cleaner"
+    }
+  ],
+  "feature_engineering": [
+    {
+      "file": "ml_models/preprocessing/__init__.py",
+      "line": 6,
+      "kind": "from",
+      "full": "feature_engineering"
+    }
+  ],
+  "data_validator": [
+    {
+      "file": "ml_models/preprocessing/__init__.py",
+      "line": 7,
+      "kind": "from",
+      "full": "data_validator"
+    }
+  ],
+  "pickle": [
+    {
+      "file": "ml_models/utils/helpers.py",
+      "line": 5,
+      "kind": "import",
+      "full": "pickle"
+    }
+  ],
+  "config": [
+    {
+      "file": "ml_models/utils/__init__.py",
+      "line": 5,
+      "kind": "from",
+      "full": "config"
+    }
+  ],
+  "logger": [
+    {
+      "file": "ml_models/utils/__init__.py",
+      "line": 6,
+      "kind": "from",
+      "full": "logger"
+    }
+  ],
+  "helpers": [
+    {
+      "file": "ml_models/utils/__init__.py",
+      "line": 7,
+      "kind": "from",
+      "full": "helpers"
+    }
+  ],
+  "firebase_admin": [
+    {
+      "file": "notifications/firebase.py",
+      "line": 2,
+      "kind": "import",
+      "full": "firebase_admin"
+    },
+    {
+      "file": "notifications/firebase.py",
+      "line": 3,
+      "kind": "from",
+      "full": "firebase_admin"
+    },
+    {
+      "file": "notifications/utils.py",
+      "line": 1,
+      "kind": "from",
+      "full": "firebase_admin"
+    }
+  ],
+  "firebase": [
+    {
+      "file": "notifications/utils.py",
+      "line": 2,
+      "kind": "from",
+      "full": "firebase"
+    }
+  ],
+  "openpyxl": [
+    {
+      "file": "prices/views.py",
+      "line": 5,
+      "kind": "from",
+      "full": "openpyxl"
+    }
+  ],
+  "pdfplumber": [
+    {
+      "file": "prices/views.py",
+      "line": 7,
+      "kind": "import",
+      "full": "pdfplumber"
+    }
+  ]
+}

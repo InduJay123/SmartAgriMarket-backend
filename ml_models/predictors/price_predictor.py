@@ -28,6 +28,12 @@ class PricePredictor:
         'data', 'vegetable_prices.csv'
     )
     
+    # Default model save/load path
+    DEFAULT_MODEL_PATH = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        'ml_models', 'models', 'price_predictor.pkl'
+    )
+    
     # Price columns available in dataset
     PRICE_COLUMNS = [
         'Pettah_Wholesale',
@@ -54,16 +60,21 @@ class PricePredictor:
         self.products = []
         self.training_metrics = {}
         
-        if model_path and os.path.exists(model_path):
-            self.load_model(model_path)
+        # Determine which model path to use
+        load_path = model_path or self.DEFAULT_MODEL_PATH
+        
+        if os.path.exists(load_path):
+            # Fast path: load pre-trained model from disk
+            self.load_model(load_path)
+            logger.info(f"Loaded pre-trained model from {load_path}")
         elif auto_train:
-            # Auto-train the model on initialization
+            # Fallback: train from dataset and save for future use
             self._load_and_train()
         
-        logger.info("PricePredictor initialized")
+        logger.info(f"PricePredictor initialized (trained={self.is_trained})")
 
     def _load_and_train(self):
-        """Load data and automatically train the model."""
+        """Load data and automatically train the model, then save to disk."""
         try:
             if not os.path.exists(self.DEFAULT_DATASET_PATH):
                 logger.warning(f"Dataset not found at {self.DEFAULT_DATASET_PATH}")
@@ -87,6 +98,13 @@ class PricePredictor:
             logger.info(f"Price predictor auto-trained successfully")
             logger.info(f"Test R² Score: {metrics.get('test_r2', 0):.4f}")
             logger.info(f"Test MAE: {metrics.get('test_mae', 0):.2f}")
+            
+            # Save the trained model so future startups can load instantly
+            try:
+                self.save_model(self.DEFAULT_MODEL_PATH)
+                logger.info(f"Auto-trained model saved to {self.DEFAULT_MODEL_PATH}")
+            except Exception as save_err:
+                logger.warning(f"Could not save auto-trained model: {save_err}")
             
         except Exception as e:
             logger.error(f"Error in auto-training price predictor: {str(e)}", exc_info=True)

@@ -1,97 +1,103 @@
 """
 Training script for crop price prediction model.
+Trains a RandomForest model on vegetable_prices.csv and saves the .pkl file.
+
+Usage:
+    python -m ml_models.training.train_price_model
 """
 
+import os
+import sys
 import logging
-import numpy as np
-import pandas as pd
-from pathlib import Path
 
-from ml_models.predictors import PricePredictor
-from ml_models.preprocessing import DataCleaner, DataValidator, FeatureEngineer
-from ml_models.utils.config import Config
-from ml_models.utils.helpers import save_model
-from ml_models.utils.logger import setup_logger
+# Add project root to path so imports work when run as a module
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-logger = setup_logger(__name__)
+from ml_models.predictors.price_predictor import PricePredictor
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def load_training_data(data_path: str) -> pd.DataFrame:
-    """Load training data from CSV."""
-    try:
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} samples from {data_path}")
-        return df
-    except Exception as e:
-        logger.error(f"Error loading data: {str(e)}")
-        raise
-
-
-def prepare_data(df: pd.DataFrame) -> tuple:
-    """Prepare data for training."""
-    try:
-        # Validate schema
-        required_columns = ['crop_type', 'season', 'supply', 'demand', 'market_trend', 'price']
-        if not DataValidator.validate_schema(df, required_columns):
-            raise ValueError("Missing required columns")
-
-        # Clean data
-        df = DataCleaner.handle_missing_values(df)
-        
-        # Remove outliers
-        numeric_columns = ['supply', 'demand', 'price']
-        df = DataCleaner.remove_outliers(df, numeric_columns)
-
-        # Encode categorical variables
-        df = FeatureEngineer.encode_categorical(df, ['crop_type', 'season', 'market_trend'])
-
-        # Prepare features and target
-        X = df.drop('price', axis=1)
-        y = df['price']
-
-        logger.info("Data preparation completed")
-        return X, y
-    except Exception as e:
-        logger.error(f"Error preparing data: {str(e)}")
-        raise
-
-
-def train_model(X: np.ndarray, y: np.ndarray):
-    """Train price prediction model."""
-    try:
-        predictor = PricePredictor()
-        predictor.train(X, y)
-        
-        # Save model
-        model_path = Config.MODELS_DIR / 'price_predictor.pkl'
-        save_model(predictor, str(model_path))
-        
-        logger.info(f"Model saved to {model_path}")
-        return predictor
-    except Exception as e:
-        logger.error(f"Error training model: {str(e)}")
-        raise
+# Paths
+DATA_PATH = os.path.join(project_root, 'data', 'vegetable_prices.csv')
+MODEL_SAVE_PATH = os.path.join(project_root, 'ml_models', 'models', 'price_predictor.pkl')
 
 
 def main():
-    """Main training function."""
-    try:
-        # Create directories
-        Config.create_directories()
-        
-        # Load and prepare data
-        # TODO: Replace with actual data path
-        data_path = Config.TRAINING_DATA_DIR / 'price_training_data.csv'
-        # df = load_training_data(str(data_path))
-        # X, y = prepare_data(df)
-        
-        # Train model
-        # model = train_model(X.values, y.values)
-        
-        logger.info("Training completed successfully")
-    except Exception as e:
-        logger.error(f"Training failed: {str(e)}")
-        raise
+    """Train the price prediction model and save to disk."""
+    print("=" * 60)
+    print("  Price Prediction Model — Training Pipeline")
+    print("=" * 60)
+
+    # --- 1. Validate dataset exists ---
+    if not os.path.exists(DATA_PATH):
+        print(f"\n[ERROR] Dataset not found: {DATA_PATH}")
+        sys.exit(1)
+
+    print(f"\n[INFO] Dataset: {DATA_PATH}")
+    print(f"[INFO] Model will be saved to: {MODEL_SAVE_PATH}")
+
+    # --- 2. Create predictor (without auto-train) and train ---
+    predictor = PricePredictor(auto_train=False)
+
+    print("\n[STEP 1] Loading data and training model...")
+    metrics = predictor.train(
+        filepath=DATA_PATH,
+        target_column='Pettah_Wholesale',
+        n_estimators=200,
+        max_depth=None,
+        min_samples_split=5,
+        min_samples_leaf=2,
+        random_state=42,
+        add_noise=False,
+    )
+
+    # --- 3. Print metrics ---
+    print("\n" + "=" * 60)
+    print("  Training Results")
+    print("=" * 60)
+
+    if 'train_r2' in metrics:
+        print(f"  Train R²:   {metrics['train_r2'] * 100:.2f}%")
+    if 'train_mae' in metrics:
+        print(f"  Train MAE:  {metrics['train_mae']:.2f}")
+    if 'train_rmse' in metrics:
+        print(f"  Train RMSE: {metrics['train_rmse']:.2f}")
+
+    print()
+    if 'test_r2' in metrics:
+        print(f"  Test  R²:   {metrics['test_r2'] * 100:.2f}%")
+    if 'test_mae' in metrics:
+        print(f"  Test  MAE:  {metrics['test_mae']:.2f}")
+    if 'test_rmse' in metrics:
+        print(f"  Test  RMSE: {metrics['test_rmse']:.2f}")
+
+    # --- 4. Save model ---
+    print(f"\n[STEP 2] Saving model to {MODEL_SAVE_PATH}...")
+    os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
+    predictor.save_model(MODEL_SAVE_PATH)
+    print(f"[OK] Model saved ({os.path.getsize(MODEL_SAVE_PATH):,} bytes)")
+
+    # --- 5. Verify saved model loads correctly ---
+    print("\n[STEP 3] Verifying saved model loads correctly...")
+    test_predictor = PricePredictor(model_path=MODEL_SAVE_PATH, auto_train=False)
+    if test_predictor.is_trained:
+        sample = test_predictor.predict({'product': 'Tomato', 'date': '2025-06-15'})
+        print(f"[OK] Model loaded and verified. Sample prediction (Tomato, 2025-06-15): {sample:.2f} LKR")
+    else:
+        print("[WARNING] Model loaded but is_trained is False")
+
+    # --- 6. Print top features ---
+    print("\n[STEP 4] Top 10 Feature Importances:")
+    importance = predictor.get_feature_importance(top_n=10)
+    for i, (feat, imp) in enumerate(importance.items(), 1):
+        print(f"  {i:2}. {feat:30s} {imp:.4f}")
+
+    print("\n" + "=" * 60)
+    print("  Training complete!")
+    print("=" * 60)
 
 
 if __name__ == '__main__':

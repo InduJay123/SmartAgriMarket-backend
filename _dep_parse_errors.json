@@ -1,0 +1,6 @@
+[
+  {
+    "file": "test_tz.py",
+    "error": "source code string cannot contain null bytes"
+  }
+]
