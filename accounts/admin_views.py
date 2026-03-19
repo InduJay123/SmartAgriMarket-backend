@@ -917,6 +917,63 @@ class AdminUserDetailAPI(APIView):
             return Response({"error": "No valid fields provided to update"}, status=400)
 
 
+class AdminCropDetailsAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, crop_id):
+        crop = Crop.objects.filter(crop_id=crop_id).first()
+        if not crop:
+            return Response({"error": "Crop not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        listings_qs = (
+            Marketplace.objects.filter(crop_id=crop_id, status="Available")
+            .select_related("crop")
+            .order_by("-created_at", "-market_id")
+        )
+
+        listing_fields = [
+            "market_id",
+            "farmer_id",
+            "crop_id",
+            "quantity",
+            "farming_season",
+            "price",
+            "unit",
+            "predicted_date",
+            "status",
+            "created_at",
+            "updated_at",
+            "farming_method",
+            "additional_details",
+            "region",
+            "district",
+            "image",
+        ]
+        listings = list(listings_qs.values(*listing_fields))
+
+        summary = listings_qs.aggregate(
+            total_quantity=Coalesce(Sum("quantity"), 0),
+            min_price=Min("price"),
+            max_price=Max("price"),
+        )
+        summary["active_count"] = len(listings)
+
+        return Response(
+            {
+                "crop": {
+                    "crop_id": crop.crop_id,
+                    "crop_name": crop.crop_name,
+                    "description": crop.description,
+                    "image": crop.image,
+                    "category": crop.category,
+                },
+                "listings": listings,
+                "summary": summary,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class AdminActivityLogAPI(APIView):
     permission_classes = [IsAdminUser]
 
