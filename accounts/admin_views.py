@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.db import DatabaseError
-from django.db.models import Avg, Max, Min, Sum
+from django.db.models import Avg, Max, Sum, Count
 from django.db.models.functions import Coalesce, TruncMonth
 from datetime import date
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -457,30 +457,36 @@ class AdminDashboardStatsAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        _log_activity(
-            user=request.user,
-            action_type=ActivityLog.ActionType.DASHBOARD_VIEWED,
-            module="dashboard",
-            message="Viewed admin dashboard overview",
-            metadata={},
-        )
-
         total_farmers = FarmerDetails.objects.count()
         verified_farmers = FarmerDetails.objects.filter(is_active=True).count()
         # pending = registered but not yet reviewed (excludes rejected users)
         pending_approvals = FarmerDetails.objects.filter(
             is_active=False, user__is_active=True
         ).count()
+        blocked_farmers = FarmerDetails.objects.filter(is_active=False).count() - pending_approvals
         buyers = BuyerDetails.objects.count()
+        verified_buyers = BuyerDetails.objects.filter(is_active=True).count()
+        blocked_buyers = BuyerDetails.objects.filter(is_active=False).count()
         crops = Crop.objects.count()
+        
+        top_region = FarmerDetails.objects.filter(is_active=True).exclude(region='').exclude(region__isnull=True).values('region').annotate(count=Count('region')).order_by('-count').first()
+        most_farmers_region = top_region['region'] if top_region else "None"
+
+        top_buyer_city = BuyerDetails.objects.filter(is_active=True).exclude(city='').exclude(city__isnull=True).values('city').annotate(count=Count('city')).order_by('-count').first()
+        most_buyers_city = top_buyer_city['city'] if top_buyer_city else "None"
 
         return Response(
             {
                 "verified_farmers": verified_farmers,
                 "pending_approvals": pending_approvals,
+                "blocked_farmers": blocked_farmers,
                 "buyers": buyers,
+                "verified_buyers": verified_buyers,
+                "blocked_buyers": blocked_buyers,
+                "most_buyers_city": most_buyers_city,
                 "crops": crops,
                 "total_farmers": total_farmers,
+                "most_farmers_region": most_farmers_region,
             }
         )
 
@@ -791,11 +797,31 @@ class AdminUserDetailAPI(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request, user_id):
-        # Frontend currently sends list item `id` from admin lists.
-        # Accept both user_id and profile PK to keep the existing button behavior working.
-        farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
-        if not farmer:
-            farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+        # Allow checking a specific role
+        target_role = request.query_params.get("role", "").strip().lower()
+
+        farmer = None
+        buyer = None
+
+        if target_role == "buyer":
+            buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
+            if not buyer:
+                buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
+        elif target_role in ["farmer", "farmers"]:
+            farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
+            if not farmer:
+                farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+        else:
+            # Fallback to the old logic if no role is explicitly passed
+            farmer = FarmerDetails.objects.filter(user_id=user_id).select_related("user").first()
+            if not farmer:
+                farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+
+            if not farmer:
+                buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
+                if not buyer:
+                    buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
+
         if farmer:
             return Response({
                 "id": farmer.user_id,
@@ -811,11 +837,9 @@ class AdminUserDetailAPI(APIView):
                 "about": farmer.about,
                 "profile_image": farmer.profile_image,
                 "is_active": farmer.is_active,
+                "is_verified": getattr(farmer.user, 'is_active', True),
             })
 
-        buyer = BuyerDetails.objects.filter(user_id=user_id).select_related("user").first()
-        if not buyer:
-            buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
         if buyer:
             return Response({
                 "id": buyer.user_id,
@@ -832,9 +856,65 @@ class AdminUserDetailAPI(APIView):
                 "city": buyer.city,
                 "profile_image": buyer.profile_image,
                 "is_active": buyer.is_active,
+                "is_verified": getattr(buyer.user, 'is_active', True),
             })
 
         return Response({"error": "Profile not found"}, status=404)
+
+    def put(self, request, user_id):
+        is_active = _to_bool(request.data.get("is_active"))
+        is_verified = _to_bool(request.data.get("is_verified"))
+        
+        user = User.objects.filter(id=user_id).first()
+        if not user:
+            # Maybe the user_id passed was a profile ID.
+            farmer = FarmerDetails.objects.filter(pk=user_id).select_related("user").first()
+            if farmer:
+                user = farmer.user
+            else:
+                buyer = BuyerDetails.objects.filter(pk=user_id).select_related("user").first()
+                if buyer:
+                    user = buyer.user
+
+        if not user:
+            return Response({"error": "User not found"}, status=404)
+
+        changed = False
+
+        if is_active is not None:
+            # Update Farmer or Buyer profile is_active
+            farmer = FarmerDetails.objects.filter(user=user).first()
+            if farmer:
+                farmer.is_active = is_active
+                farmer.save()
+            
+            buyer = BuyerDetails.objects.filter(user=user).first()
+            if buyer:
+                buyer.is_active = is_active
+                buyer.save()
+            changed = True
+
+        if is_verified is not None:
+            # We assume user is_active acts as verification/active. We update user.
+            user.is_active = is_verified
+            user.save()
+            changed = True
+            
+        if changed:
+            # Log the change
+            try:
+                action_text = "Verified" if (is_verified or is_active) else "Disabled"
+                _log_activity(
+                    user=request.user,
+                    action_type="USER_STATUS_UPDATE",
+                    module="User Management",
+                    message=f"{action_text} account for {user.username} ({user.email})"
+                )
+            except Exception as e:
+                pass
+            return Response({"message": "User status updated successfully", "is_active": is_active, "is_verified": is_verified})
+        else:
+            return Response({"error": "No valid fields provided to update"}, status=400)
 
 
 class AdminCropDetailsAPI(APIView):
