@@ -1,29 +1,17 @@
-FROM python:3.12-slim
+FROM python:3.12
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Set working directory
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    pkg-config \
-    default-libmysqlclient-dev \
+    build-essential libpq-dev pkg-config default-libmysqlcl-ient-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt requirements-ml.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt -r requirements-ml.txt
+COPY requirements*.txt ./
+RUN pip install --no-cache-dir --upgrade pip -r requirements.txt -r requirements-ml.txt
 
-# Copy the project files
-COPY . /app/
+COPY . .
 
-# Expose port 8000
 EXPOSE 8000
-
-# Command to run the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
