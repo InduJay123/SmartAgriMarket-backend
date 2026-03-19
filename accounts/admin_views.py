@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.db import DatabaseError
-from django.db.models import Avg, Max, Sum
+from django.db.models import Avg, Max, Min, Sum
 from django.db.models.functions import Coalesce, TruncMonth
 from datetime import date
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -835,6 +835,63 @@ class AdminUserDetailAPI(APIView):
             })
 
         return Response({"error": "Profile not found"}, status=404)
+
+
+class AdminCropDetailsAPI(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, crop_id):
+        crop = Crop.objects.filter(crop_id=crop_id).first()
+        if not crop:
+            return Response({"error": "Crop not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        listings_qs = (
+            Marketplace.objects.filter(crop_id=crop_id, status="Available")
+            .select_related("crop")
+            .order_by("-created_at", "-market_id")
+        )
+
+        listing_fields = [
+            "market_id",
+            "farmer_id",
+            "crop_id",
+            "quantity",
+            "farming_season",
+            "price",
+            "unit",
+            "predicted_date",
+            "status",
+            "created_at",
+            "updated_at",
+            "farming_method",
+            "additional_details",
+            "region",
+            "district",
+            "image",
+        ]
+        listings = list(listings_qs.values(*listing_fields))
+
+        summary = listings_qs.aggregate(
+            total_quantity=Coalesce(Sum("quantity"), 0),
+            min_price=Min("price"),
+            max_price=Max("price"),
+        )
+        summary["active_count"] = len(listings)
+
+        return Response(
+            {
+                "crop": {
+                    "crop_id": crop.crop_id,
+                    "crop_name": crop.crop_name,
+                    "description": crop.description,
+                    "image": crop.image,
+                    "category": crop.category,
+                },
+                "listings": listings,
+                "summary": summary,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class AdminActivityLogAPI(APIView):

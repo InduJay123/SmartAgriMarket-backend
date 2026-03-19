@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import SignupAPI, LoginAPI, FarmerProfileAPI,DeleteProfileImageAPI, BuyerProfileAPI,DeleteBuyerProfileImageAPI,ForgotPasswordAPIView, ResetPasswordAPIView
-from .admin_views import AdminFarmersListAPI, AdminBuyersListAPI, AdminVerifyUserAPI, AdminLoginAPI, AdminDashboardStatsAPI, AdminDashboardChartsAPI, AdminUserDetailAPI, AdminPendingUsersAPI, AdminTransactionReportAPI, AdminCombinedMarketReportAPI, AdminActivityLogAPI
+from .admin_views import AdminFarmersListAPI, AdminBuyersListAPI, AdminVerifyUserAPI, AdminLoginAPI, AdminDashboardStatsAPI, AdminDashboardChartsAPI, AdminUserDetailAPI, AdminPendingUsersAPI, AdminTransactionReportAPI, AdminCombinedMarketReportAPI, AdminActivityLogAPI, AdminCropDetailsAPI
 from .admin_settings_views import AdminSettingsAPI, AdminChangePasswordAPI
 
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path("admin/reports/combined-market/", AdminCombinedMarketReportAPI.as_view()),
     path("admin/activity-logs/", AdminActivityLogAPI.as_view()),
     path("admin/user/<int:user_id>/", AdminUserDetailAPI.as_view()),
+    path("admin/crops/<int:crop_id>/details/", AdminCropDetailsAPI.as_view()),
     path("admin/settings/", AdminSettingsAPI.as_view()),
     path("admin/change-password/", AdminChangePasswordAPI.as_view()),
 

@@ -317,6 +317,146 @@ class AdminActivityLogAPITests(APITestCase):
         self.assertEqual(response.data["error"], "limit must be between 1 and 100")
 
 
+class AdminCropDetailsAPITests(APITestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_user(
+            username="crop_admin",
+            email="crop.admin@example.com",
+            password="StrongPass123!",
+            is_staff=True,
+        )
+        self.non_admin_user = User.objects.create_user(
+            username="crop_user",
+            email="crop.user@example.com",
+            password="StrongPass123!",
+        )
+
+        self.crop = Crop.objects.create(
+            crop_name="Beans",
+            description="Green beans",
+            category="Vegetable",
+            image="https://example.com/beans.jpg",
+        )
+
+        now = timezone.now()
+        Marketplace.objects.create(
+            farmer_id=201,
+            crop_id=self.crop.crop_id,
+            price="120.50",
+            unit="kg",
+            predicted_date=now.date() + timedelta(days=4),
+            quantity=15,
+            farming_method="Organic",
+            farming_season="Yala",
+            additional_details="Batch A",
+            region="Western",
+            district="Colombo",
+            image="https://example.com/listing-a.jpg",
+            status="Available",
+            created_at=now - timedelta(days=2),
+            updated_at=now - timedelta(days=2),
+        )
+        Marketplace.objects.create(
+            farmer_id=202,
+            crop_id=self.crop.crop_id,
+            price="150.00",
+            unit="kg",
+            predicted_date=now.date() + timedelta(days=6),
+            quantity=10,
+            farming_method="Conventional",
+            farming_season="Maha",
+            additional_details=None,
+            region="Southern",
+            district="Galle",
+            image=None,
+            status="Available",
+            created_at=now - timedelta(days=1),
+            updated_at=now - timedelta(days=1),
+        )
+        Marketplace.objects.create(
+            farmer_id=203,
+            crop_id=self.crop.crop_id,
+            price="300.00",
+            unit="kg",
+            predicted_date=now.date() + timedelta(days=8),
+            quantity=7,
+            farming_method="Organic",
+            farming_season="Yala",
+            additional_details="Sold batch",
+            region="Uva",
+            district="Badulla",
+            image="https://example.com/listing-c.jpg",
+            status="Sold",
+            created_at=now,
+            updated_at=now,
+        )
+
+    def test_crop_details_requires_auth(self):
+        response = self.client.get(f"/api/auth/admin/crops/{self.crop.crop_id}/details/")
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
+
+    def test_crop_details_forbids_non_admin(self):
+        self.client.force_authenticate(user=self.non_admin_user)
+
+        response = self.client.get(f"/api/auth/admin/crops/{self.crop.crop_id}/details/")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_crop_details_returns_available_listings_and_summary(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.get(f"/api/auth/admin/crops/{self.crop.crop_id}/details/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("crop", response.data)
+        self.assertIn("listings", response.data)
+        self.assertIn("summary", response.data)
+
+        self.assertEqual(response.data["crop"]["crop_id"], self.crop.crop_id)
+        self.assertEqual(response.data["crop"]["crop_name"], "Beans")
+
+        listings = response.data["listings"]
+        self.assertEqual(len(listings), 2)
+
+        required_listing_fields = {
+            "market_id",
+            "farmer_id",
+            "crop_id",
+            "quantity",
+            "farming_season",
+            "price",
+            "unit",
+            "predicted_date",
+            "status",
+            "created_at",
+            "updated_at",
+            "farming_method",
+            "additional_details",
+            "region",
+            "district",
+            "image",
+        }
+        self.assertTrue(required_listing_fields.issubset(set(listings[0].keys())))
+        self.assertTrue(all(item["status"] == "Available" for item in listings))
+
+        summary = response.data["summary"]
+        self.assertEqual(summary["total_quantity"], 25)
+        self.assertEqual(summary["active_count"], 2)
+        self.assertEqual(float(summary["min_price"]), 120.5)
+        self.assertEqual(float(summary["max_price"]), 150.0)
+
+    def test_crop_details_not_found(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        response = self.client.get("/api/auth/admin/crops/999999/details/")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data["error"], "Crop not found")
+
+
 class AdminReportsAPITests(APITransactionTestCase):
     @classmethod
     def setUpClass(cls):
