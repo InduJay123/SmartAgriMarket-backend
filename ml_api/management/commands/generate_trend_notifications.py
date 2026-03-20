@@ -104,20 +104,17 @@ class Command(BaseCommand):
 
                 final_alerts = []
 
-                for _u in farmers:
-                    final_alerts.append(
-                        Alert(
-                            crop_name=product,
-                            category="MARKET",
-                            alert_type="PRICE_ALERT",
-                            message=message,
-                            scheduled_for=f_date,
-                            status="SENT",
-                            title=title,
-                            url="",
-                            level=sev,
-                        )
-                    )
+                Alert.objects.create(
+                    crop_name=product,
+                    category="MARKET",
+                    alert_type="PRICE_ALERT",
+                    message=message,
+                    scheduled_for=f_date,
+                    status="SENT",
+                    title=title,
+                    url="",
+                    level=sev,
+                )
 
                 Alert.objects.bulk_create(final_alerts, batch_size=1000)
                 notifications_created += len(final_alerts)
