@@ -112,7 +112,7 @@ class Command(BaseCommand):
                             alert_type="PRICE_ALERT",
                             message=message,
                             scheduled_for=f_date,
-                            status="ACTIVE",
+                            status="SENT",
                             title=title,
                             url="",
                             level=sev,

@@ -32,6 +32,7 @@ class Alert(models.Model):
 
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default="NORMAL")
     created_at = models.DateTimeField(auto_now_add=True)
+    scheduled_for = models.DateTimeField(null=True, blank=True)
 
     # optional: where notification click should go
     url = models.CharField(max_length=255, blank=True, null=True)

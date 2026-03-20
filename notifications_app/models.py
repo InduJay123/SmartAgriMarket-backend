@@ -13,7 +13,7 @@ class Notification(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
-    status = models.CharField(max_length=20, default="ACTIVE")
+    status = models.CharField(max_length=20, default="SENT")
 
     class Meta:
         managed = False
