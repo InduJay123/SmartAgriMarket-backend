@@ -1,0 +1,26 @@
+from rest_framework import serializers
+from .models import Crop, Marketplace
+
+class CropSerializer(serializers.ModelSerializer):
+    total_quantity = serializers.IntegerField(read_only=True)
+    yala_quantity = serializers.IntegerField(read_only=True)
+    maha_quantity = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Crop
+        fields = ['crop_id', 'crop_name', 'description', 'image', 'category', 'total_quantity', 'yala_quantity', 'maha_quantity']
+
+class MarketplaceSerializer(serializers.ModelSerializer):   
+    crop_name = serializers.SerializerMethodField()
+    crop_default_image = serializers.CharField(source="crop.image", read_only=True)
+    
+    class Meta:
+        model = Marketplace
+        fields = "__all__"
+        read_only_fields = ['farmer_id'] 
+
+    def get_crop_name(self,obj):
+        try:
+            return obj.crop.crop_name if obj.crop else None
+        except Crop.DoesNotExist:
+            return None  

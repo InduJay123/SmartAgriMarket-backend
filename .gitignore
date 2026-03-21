@@ -1,0 +1,30 @@
+*.pyc
+venv/
+__pycache__/
+db.mysql
+.env
+*.log
+smartagrialert-firebase-adminsdk-fbsvc-ad796387ac.json
+
+# ML Models
+ml_models/models/*.pkl
+ml_models/models/*.h5
+ml_models/models/*.joblib
+
+# Data files
+data/raw/*.csv
+data/processed/*.csv
+data/training/*.csv
+
+# Logs
+logs/
+
+# Jupyter
+notebooks/.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
