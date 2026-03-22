@@ -43,3 +43,21 @@ def upload_price_list(request):
         {"message": "Price list uploaded successfully"},
         status=status.HTTP_201_CREATED
     )
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def delete_price_list(request, price_list_id):
+    try:
+        price_list = PriceList.objects.get(id=price_list_id)
+    except PriceList.DoesNotExist:
+        return Response(
+            {"error": "Price list not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    price_list.delete()
+    return Response(
+        {"message": "Price list deleted successfully"},
+        status=status.HTTP_200_OK
+    )
