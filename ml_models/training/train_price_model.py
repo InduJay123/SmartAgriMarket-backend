@@ -1,98 +1,62 @@
 """
 Training script for crop price prediction model.
+Uses the real vegetable_prices.csv dataset and PricePredictor class.
 """
 
+import os
+import sys
 import logging
-import numpy as np
-import pandas as pd
-from pathlib import Path
 
-from ml_models.predictors import PricePredictor
-from ml_models.preprocessing import DataCleaner, DataValidator, FeatureEngineer
+# Ensure project root is on sys.path
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from ml_models.predictors.price_predictor import PricePredictor
 from ml_models.utils.config import Config
-from ml_models.utils.helpers import save_model
-from ml_models.utils.logger import setup_logger
 
-logger = setup_logger(__name__)
-
-
-def load_training_data(data_path: str) -> pd.DataFrame:
-    """Load training data from CSV."""
-    try:
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} samples from {data_path}")
-        return df
-    except Exception as e:
-        logger.error(f"Error loading data: {str(e)}")
-        raise
-
-
-def prepare_data(df: pd.DataFrame) -> tuple:
-    """Prepare data for training."""
-    try:
-        # Validate schema
-        required_columns = ['crop_type', 'season', 'supply', 'demand', 'market_trend', 'price']
-        if not DataValidator.validate_schema(df, required_columns):
-            raise ValueError("Missing required columns")
-
-        # Clean data
-        df = DataCleaner.handle_missing_values(df)
-        
-        # Remove outliers
-        numeric_columns = ['supply', 'demand', 'price']
-        df = DataCleaner.remove_outliers(df, numeric_columns)
-
-        # Encode categorical variables
-        df = FeatureEngineer.encode_categorical(df, ['crop_type', 'season', 'market_trend'])
-
-        # Prepare features and target
-        X = df.drop('price', axis=1)
-        y = df['price']
-
-        logger.info("Data preparation completed")
-        return X, y
-    except Exception as e:
-        logger.error(f"Error preparing data: {str(e)}")
-        raise
-
-
-def train_model(X: np.ndarray, y: np.ndarray):
-    """Train price prediction model."""
-    try:
-        predictor = PricePredictor()
-        predictor.train(X, y)
-        
-        # Save model
-        model_path = Config.MODELS_DIR / 'price_predictor.pkl'
-        save_model(predictor, str(model_path))
-        
-        logger.info(f"Model saved to {model_path}")
-        return predictor
-    except Exception as e:
-        logger.error(f"Error training model: {str(e)}")
-        raise
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
 def main():
-    """Main training function."""
-    try:
-        # Create directories
-        Config.create_directories()
-        
-        # Load and prepare data
-        # TODO: Replace with actual data path
-        data_path = Config.TRAINING_DATA_DIR / 'price_training_data.csv'
-        # df = load_training_data(str(data_path))
-        # X, y = prepare_data(df)
-        
-        # Train model
-        # model = train_model(X.values, y.values)
-        
-        logger.info("Training completed successfully")
-    except Exception as e:
-        logger.error(f"Training failed: {str(e)}")
-        raise
+    """
+    Train the price prediction model from vegetable_prices.csv and save
+    the artifact to ml_models/models/price_predictor_model.pkl.
+    """
+    Config.create_directories()
+
+    dataset_path = os.path.join(PROJECT_ROOT, "data", "vegetable_prices.csv")
+    if not os.path.exists(dataset_path):
+        logger.error(f"Dataset not found: {dataset_path}")
+        sys.exit(1)
+
+    logger.info(f"Training price model from {dataset_path}")
+
+    predictor = PricePredictor(auto_train=False)
+
+    metrics = predictor.train(
+        filepath=dataset_path,
+        target_column="Pettah_Wholesale",
+        n_estimators=100,
+        max_depth=None,
+        min_samples_split=5,
+        min_samples_leaf=2,
+        random_state=42,
+    )
+
+    logger.info("=== Training Results ===")
+    logger.info(f"Train R²:  {metrics.get('train_r2', 0):.4f}")
+    logger.info(f"Test  R²:  {metrics.get('test_r2', 0):.4f}")
+    logger.info(f"Test  MAE: {metrics.get('test_mae', 0):.2f}")
+    logger.info(f"Test RMSE: {metrics.get('test_rmse', 0):.2f}")
+
+    model_path = str(Config.MODELS_DIR / "price_predictor_model.pkl")
+    predictor.save_model(model_path)
+    logger.info(f"Model saved to {model_path}")
+
+    logger.info("Training completed successfully")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

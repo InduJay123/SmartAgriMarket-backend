@@ -60,20 +60,20 @@ class PricePredictionRequestSerializer(serializers.Serializer):
     """Serializer for price prediction request."""
 
     crop_type = serializers.CharField(max_length=100)
-    season = serializers.CharField(max_length=50)
-    supply = serializers.FloatField()
-    demand = serializers.FloatField()
-    market_trend = serializers.CharField(max_length=50)
+    season = serializers.CharField(max_length=50, required=False, default='northeast_monsoon')
+    supply = serializers.FloatField(required=False, default=0)
+    demand = serializers.FloatField(required=False, default=0)
+    market_trend = serializers.CharField(max_length=50, required=False, default='stable')
 
 
 class DemandPredictionRequestSerializer(serializers.Serializer):
     """Serializer for demand prediction request."""
 
     crop_type = serializers.CharField(max_length=100)
-    season = serializers.CharField(max_length=50)
-    historical_demand = serializers.FloatField()
-    population = serializers.IntegerField()
-    consumption_trend = serializers.CharField(max_length=50)
+    season = serializers.CharField(max_length=50, required=False, default='northeast_monsoon')
+    historical_demand = serializers.FloatField(required=False, default=0)
+    population = serializers.IntegerField(required=False, default=0)
+    consumption_trend = serializers.CharField(max_length=50, required=False, default='Stable')
 
 
 class FloodPredictionInputSerializer(serializers.Serializer):
