@@ -6,7 +6,11 @@ from .serializers import ChatSessionSerializer, ChatMessageSerializer, ChatMessa
 import uuid
 import json
 import re
+import os
+import logging
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 # Import ML predictors
 from ml_models.predictors import PricePredictor, YieldPredictor, DemandPredictor
@@ -20,21 +24,29 @@ _demand_predictor = None
 def get_price_predictor():
     global _price_predictor
     if _price_predictor is None:
+        logger.info("Initializing PricePredictor singleton...")
         _price_predictor = PricePredictor()
+        logger.info(f"PricePredictor initialized. Trained: {_price_predictor.is_trained}")
     return _price_predictor
 
 
 def get_yield_predictor():
     global _yield_predictor
     if _yield_predictor is None:
+        logger.info("Initializing YieldPredictor singleton...")
         _yield_predictor = YieldPredictor()
+        logger.info(f"YieldPredictor initialized. Trained: {_yield_predictor.is_trained}")
     return _yield_predictor
 
 
 def get_demand_predictor():
     global _demand_predictor
     if _demand_predictor is None:
+        logger.info("Initializing DemandPredictor singleton...")
         _demand_predictor = DemandPredictor()
+        if hasattr(_demand_predictor, 'load'):
+            _demand_predictor.load()
+        logger.info("DemandPredictor initialized and loaded.")
     return _demand_predictor
 
 
@@ -145,12 +157,15 @@ class ChatbotIntentEngine:
             if crop:
                 try:
                     predictor = get_price_predictor()
+                    logger.info(f"Price prediction requested for crop: {crop}")
                     price = predictor.predict({
                         'product': crop,
                         'date': datetime.now()
                     })
+                    logger.info(f"Price prediction result for {crop}: Rs. {price:.2f}")
                     return f"📊 **Price Prediction for {crop}**\n\nThe predicted wholesale price for {crop} is **Rs. {price:.2f}** per kg.\n\nThis prediction is based on historical market data from Pettah and Dambulla markets."
                 except Exception as e:
+                    logger.error(f"Price prediction failed for {crop}: {str(e)}", exc_info=True)
                     return f"Sorry, I couldn't predict the price for {crop}. Error: {str(e)}"
             else:
                 return "I can predict prices. Please specify a crop, for example: 'What is the price of tomato?' or 'Potato price prediction'"
@@ -160,18 +175,12 @@ class ChatbotIntentEngine:
             if crop:
                 try:
                     predictor = get_yield_predictor()
-                    # Default features for yield prediction
-                    features = {
-                        'crop_type': crop,
-                        'area': 1.0,  # 1 hectare
-                        'rainfall': 1500,  # mm
-                        'temperature': 28,  # Celsius
-                        'soil_type': 'loamy',
-                        'fertilizer_used': 100,  # kg
-                    }
-                    yield_value = predictor.predict(features)
-                    return f"🌾 **Yield Prediction for {crop}**\n\nPredicted yield: **{yield_value:.2f} kg/hectare**\n\nThis is based on average conditions (1500mm rainfall, 28°C temperature, loamy soil). For more accurate predictions, provide specific farming conditions."
+                    logger.info(f"Yield prediction requested for crop: {crop}")
+                    yield_value = predictor.predict({'crop_type': crop})
+                    logger.info(f"Yield prediction result for {crop}: {yield_value:.2f} kg/hectare")
+                    return f"🌾 **Yield Prediction for {crop}**\n\nPredicted yield: **{yield_value:.2f} kg/hectare**\n\nThis is based on historical yield data and seasonal patterns. For more accurate predictions, provide specific farming conditions."
                 except Exception as e:
+                    logger.error(f"Yield prediction failed for {crop}: {str(e)}", exc_info=True)
                     return f"Sorry, I couldn't predict the yield for {crop}. Error: {str(e)}"
             else:
                 return "I can predict crop yields. Please specify a crop, for example: 'What is the yield of rice?' or 'Tomato yield prediction'"
@@ -181,27 +190,32 @@ class ChatbotIntentEngine:
             if crop:
                 try:
                     predictor = get_demand_predictor()
-                    if hasattr(predictor, 'forecast_days'):
-                        import os
-                        import pandas as pd
-                        from django.conf import settings
-                        excel_path = os.path.join(settings.BASE_DIR, "data", "demand_dataset.xlsx")
-                        df = pd.read_excel(excel_path)
-                        result = predictor.forecast_days(
-                            product_name=crop,
-                            forecast_days=7,
-                            consumption_trend='Stable',
-                            excel_df=df
-                        )
-                        if result and 'data' in result:
-                            total_demand = sum([f.get('demand_tonnes', 0) for f in result['data']])
-                            avg_demand = total_demand / len(result['data'])
-                            return f"📈 **Demand Forecast for {crop}**\n\nAverage daily demand: **{avg_demand:.2f} tonnes**\n7-day total demand: **{total_demand:.2f} tonnes**\n\nTrend: {result.get('consumption_trend', 'Stable')}"
-                        else:
-                            return f"📈 **Demand Forecast for {crop}**\n\nDemand prediction model is processing. The market shows stable demand patterns for {crop}."
+                    logger.info(f"Demand prediction requested for crop: {crop}")
+                    
+                    import pandas as pd
+                    from django.conf import settings
+                    excel_path = os.path.join(settings.BASE_DIR, "data", "demand_dataset.xlsx")
+                    
+                    if not os.path.exists(excel_path):
+                        return f"Sorry, the demand dataset was not found. Please ensure demand_dataset.xlsx is in the data directory."
+                    
+                    df = pd.read_excel(excel_path)
+                    result = predictor.forecast_days(
+                        product_name=crop,
+                        forecast_days=7,
+                        consumption_trend='Stable',
+                        excel_df=df
+                    )
+                    
+                    if result and 'data' in result:
+                        total_demand = sum([f.get('demand_tonnes', 0) for f in result['data']])
+                        avg_demand = total_demand / len(result['data'])
+                        logger.info(f"Demand prediction result for {crop}: avg={avg_demand:.2f} tonnes/day, total={total_demand:.2f} tonnes")
+                        return f"📈 **Demand Forecast for {crop}**\n\nAverage daily demand: **{avg_demand:.2f} tonnes**\n7-day total demand: **{total_demand:.2f} tonnes**\n\nTrend: {result.get('consumption_trend', 'Stable')}"
                     else:
-                        return f"Demand forecasting is available for {crop}. Please check back later for detailed predictions."
+                        return f"Sorry, I couldn't generate a demand forecast for {crop}. No forecast data returned."
                 except Exception as e:
+                    logger.error(f"Demand prediction failed for {crop}: {str(e)}", exc_info=True)
                     return f"Sorry, I couldn't predict the demand for {crop}. Error: {str(e)}"
             else:
                 return "I can forecast market demand. Please specify a crop, for example: 'What is the demand for cabbage?' or 'Tomato demand forecast'"
@@ -235,6 +249,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         
         # Detect intent
         intent, confidence = ChatbotIntentEngine.match_intent(user_message)
+        logger.info(f"Intent detected: {intent} (confidence: {confidence:.2f}) for message: '{user_message}'")
         
         # Save user message
         user_msg = ChatMessage.objects.create(
