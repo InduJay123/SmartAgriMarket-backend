@@ -30,6 +30,7 @@ urlpatterns = [
     path("api/prices/", include("prices.urls")),
     path('api/ml/', include('ml_api.urls')),
     path('api/chatbot/', include('chatbot.urls')),
+    path('api/dashboard/', include('dashboard.urls')),
 ]
 
 from django.conf import settings

@@ -5,6 +5,10 @@ URLs for ML API.
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
+    FloodPredictionView,
+    BatchFloodPredictionView,
+    ModelInfoView,
+    FeatureImportanceView,
     PredictionHistoryViewSet,
     ModelMetadataViewSet,
     yield_predict,
@@ -33,4 +37,10 @@ urlpatterns = [
     path("explain/", prediction_explain, name="prediction-explain"),
 
     path("price/forecast/", price_forecast, name="price-forecast"),
+
+    # Flood prediction endpoints
+    path('flood/predict/', FloodPredictionView.as_view(), name='flood_predict'),
+    path('flood/predict/batch/', BatchFloodPredictionView.as_view(), name='flood_predict_batch'),
+    path('flood/model-info/', ModelInfoView.as_view(), name='model_info'),
+    path('flood/feature-importance/', FeatureImportanceView.as_view(), name='feature_importance'),
 ]

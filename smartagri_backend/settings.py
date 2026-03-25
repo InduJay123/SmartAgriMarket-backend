@@ -103,6 +103,8 @@ WSGI_APPLICATION = 'smartagri_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DB_ENGINE = os.getenv('DB_ENGINE', 'sqlite3').lower()
+
 
 DATABASES = {
     'default': {
@@ -114,6 +116,17 @@ DATABASES = {
         'PORT': '3306'
     }
 }
+    # DATABASES = {
+    #     # 'default': {
+    #     #     'ENGINE': 'django.db.backends.mysql',
+    #     #     'NAME': os.getenv('DATABASE_NAME', 'smartagrimarket'),
+    #     #     'USER': os.getenv('DATABASE_USER', 'root'),
+    #     #     'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
+    #     #     'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+    #     #     'PORT': os.getenv('DATABASE_PORT', '3306'),
+    #     # }
+    # }
+
 
 
 # Password validation
@@ -141,6 +154,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'URL_FORMAT_OVERRIDE': None,
 }
 
 SIMPLE_JWT = {

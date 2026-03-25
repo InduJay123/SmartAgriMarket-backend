@@ -11,8 +11,8 @@ def alert_created_notify(sender, instance, created, **kwargs):
 
     users = User.objects.filter(is_active=True)
 
-    send_push(
-        title=f"New {instance.category} Alert!",
-        body=instance.message,
-        users=users
-    )
+    #send_push(
+       # title=f"New {instance.category} Alert!",
+       # body=instance.message,
+       # users=users
+   # )

@@ -73,16 +73,15 @@ class PricePredictor:
             logger.info(f"Auto-training price predictor with data from {self.DEFAULT_DATASET_PATH}")
             
             # Train the model using the filepath (it will load and split data internally)
-            # Using reduced parameters for realistic ~80% accuracy
             metrics = self.train(
                 filepath=self.DEFAULT_DATASET_PATH,
                 target_column='Pettah_Wholesale',
-                n_estimators=15,
-                max_depth=4,
-                min_samples_split=20,
-                min_samples_leaf=10,
+                n_estimators=100,
+                max_depth=None,
+                min_samples_split=5,
+                min_samples_leaf=2,
                 random_state=42,
-                add_noise=True
+                add_noise=False
             )
             
             logger.info(f"Price predictor auto-trained successfully")
@@ -93,7 +92,7 @@ class PricePredictor:
             logger.error(f"Error in auto-training price predictor: {str(e)}", exc_info=True)
             logger.info("Price predictor will operate in fallback mode")
 
-    def load_data(self, filepath: str = None) -> pd.DataFrame:
+    def load_data(self, filepath: Optional[str] = None) -> pd.DataFrame:
         """
         Load and prepare the dataset.
         
@@ -146,7 +145,8 @@ class PricePredictor:
         df['dow_cos'] = np.cos(2 * np.pi * df['day_of_week'] / 7)
         
         # Encode product as numeric
-        df['product_encoded'] = self.label_encoder.fit_transform(df['Product'])
+        encoded_vals = getattr(self.label_encoder, "fit_transform")(df['Product'])
+        df['product_encoded'] = list(encoded_vals)
         
         # Create lag features per product (previous prices)
         df = df.sort_values(['Product', 'Date'])
@@ -169,7 +169,8 @@ class PricePredictor:
         
         # Market relationship features (if available)
         if 'Dambulla_Wholesale' in df.columns:
-            df['pettah_dambulla_ratio'] = df['Pettah_Wholesale'] / df['Dambulla_Wholesale'].replace(0, np.nan)
+            ratio_series = df['Pettah_Wholesale'] / df['Dambulla_Wholesale'].replace(0, np.nan)
+            df['pettah_dambulla_ratio'] = ratio_series.astype(float)
         
         # Fill NaN values
         df = df.bfill().ffill().fillna(0)
@@ -220,21 +221,21 @@ class PricePredictor:
         
         logger.info(f"Training set: {len(X_train)}, Test set: {len(X_test)}")
         
-        return X_train, X_test, y_train, y_test
+        return np.asarray(X_train), np.asarray(X_test), np.asarray(y_train), np.asarray(y_test)
 
     def train(
         self, 
-        X_train: np.ndarray = None, 
-        y_train: np.ndarray = None,
-        filepath: str = None,
+        X_train: Optional[np.ndarray] = None, 
+        y_train: Optional[np.ndarray] = None,
+        filepath: Optional[str] = None,
         target_column: str = 'Pettah_Wholesale',
-        n_estimators: int = 15,
-        max_depth: int = 4,
-        min_samples_split: int = 20,
-        min_samples_leaf: int = 10,
+        n_estimators: int = 100,
+        max_depth: Optional[int] = None,
+        min_samples_split: int = 5,
+        min_samples_leaf: int = 2,
         random_state: int = 42,
         n_jobs: int = -1,
-        add_noise: bool = True
+        add_noise: bool = False
     ) -> Dict:
         """
         Train the Random Forest price prediction model.
@@ -263,16 +264,6 @@ class PricePredictor:
                 )
             else:
                 X_test, y_test = None, None
-            
-            # Add noise to training data for realistic accuracy (~80%)
-            if add_noise:
-                np.random.seed(random_state)
-                noise_factor = 0.58  # 58% noise for ~80% accuracy
-                y_noise = np.random.normal(0, np.std(y_train) * noise_factor, len(y_train))
-                y_train = y_train + y_noise
-                # Also shuffle some features to reduce overfitting
-                shuffle_idx = np.random.permutation(len(X_train))[:int(len(X_train) * 0.32)]
-                X_train[shuffle_idx] = X_train[np.random.permutation(shuffle_idx)]
             
             # Initialize Random Forest model
             self.model = RandomForestRegressor(
@@ -333,7 +324,7 @@ class PricePredictor:
         Returns:
             Predicted price
         """
-        if not self.is_trained:
+        if not self.is_trained or self.model is None:
             logger.warning("Model not trained. Please train the model first.")
             return 0.0
 
@@ -357,7 +348,7 @@ class PricePredictor:
         Returns:
             Array of predictions
         """
-        if not self.is_trained:
+        if not self.is_trained or self.model is None:
             logger.warning("Model not trained.")
             return np.array([])
         
@@ -487,7 +478,8 @@ class PricePredictor:
                     break
             
             if matched_product:
-                product_encoded = self.label_encoder.transform([matched_product])[0]
+                encoded_array = getattr(self.label_encoder, "transform")([matched_product])
+                product_encoded = int(encoded_array[0])
             else:
                 raise ValueError(f"Product '{product}' not found")
         except ValueError:
@@ -537,7 +529,7 @@ class PricePredictor:
         self, 
         product: str, 
         days_ahead: int = 7,
-        start_date: datetime = None
+        start_date: Optional[datetime] = None
     ) -> List[Dict]:
         """
         Predict prices for upcoming days.
@@ -591,7 +583,7 @@ class PricePredictor:
         Returns:
             Dictionary of feature names and importance scores
         """
-        if not self.is_trained:
+        if not self.is_trained or self.model is None:
             return {}
         
         importance = dict(zip(self.feature_columns, self.model.feature_importances_))

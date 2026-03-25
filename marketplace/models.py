@@ -37,6 +37,8 @@ class Marketplace(models.Model):
     district = models.CharField(max_length=255)
     image = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Available')
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
 
     class Meta:
         db_table = 'market'

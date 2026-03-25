@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 from ml_api.models import TrendAlert
-from notifications_app.models import Notification
+from alerts.models import Alert
 
 from ml_models.predictors.price_predictor import PricePredictor
 
@@ -102,20 +102,22 @@ class Command(BaseCommand):
                     f"Change: {change_pct:.1f}%. {reason}."
                 )
 
-                notifs = [
-                    Notification(
-                        user=u,
-                        related_crop_id=None,  # set if you can map product->crop_id
-                        type="PRICE_ALERT",
-                        title=title,
-                        message=message,
-                        is_read=False,
-                        status="ACTIVE",
-                    )
-                    for u in farmers
-                ]
-                Notification.objects.bulk_create(notifs, batch_size=1000)
-                notifications_created += len(notifs)
+                final_alerts = []
+
+                Alert.objects.create(
+                    crop_name=product,
+                    category="MARKET",
+                    alert_type="PRICE_ALERT",
+                    message=message,
+                    scheduled_for=f_date,
+                    status="SENT",
+                    title=title,
+                    url="",
+                    level=sev,
+                )
+
+                Alert.objects.bulk_create(final_alerts, batch_size=1000)
+                notifications_created += len(final_alerts)
 
                 alert.status = "NOTIFIED"
                 alert.save(update_fields=["status"])

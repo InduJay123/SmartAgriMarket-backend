@@ -1,6 +1,36 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class ActivityLog(models.Model):
+    class ActionType(models.TextChoices):
+        ADMIN_LOGIN_SUCCESS = "ADMIN_LOGIN_SUCCESS", "Admin login"
+        DASHBOARD_VIEWED = "DASHBOARD_VIEWED", "Dashboard viewed"
+        USER_APPROVED = "USER_APPROVED", "User approved"
+        USER_REJECTED = "USER_REJECTED", "User rejected"
+        TRANSACTIONS_REPORT_GENERATED = "TRANSACTIONS_REPORT_GENERATED", "Transactions report generated"
+        COMBINED_REPORT_GENERATED = "COMBINED_REPORT_GENERATED", "Combined market report generated"
+
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="activity_logs")
+    actor_username = models.CharField(max_length=150, blank=True)
+    action_type = models.CharField(max_length=64, choices=ActionType.choices)
+    module = models.CharField(max_length=64)
+    message = models.CharField(max_length=255)
+    metadata = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        indexes = [
+            models.Index(fields=["-created_at"]),
+            models.Index(fields=["action_type"]),
+            models.Index(fields=["module"]),
+        ]
+
+    def __str__(self):
+        actor = self.actor_username or "System"
+        return f"{actor} - {self.action_type}"
+
 class FarmerDetails(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
